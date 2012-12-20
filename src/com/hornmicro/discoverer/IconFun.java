@@ -30,19 +30,12 @@ public class IconFun {
         
         for(int x = 0; x < width; x++) {
             for(int y = 0; y < height; y++) {
-                RGB rgb = palette.getRGB(imageData.getPixel(x, y));
-                
-                System.out.println("Before "+rgb);
-                rgb.blue = 256 - rgb.blue;
-                rgb.red = 256 - rgb.red;
-                rgb.green = 256 - rgb.green;
-                System.out.println("After "+rgb);
-                imageData.setPixel(x, y, palette.getPixel(rgb));
+                imageData.setPixel(x, y, palette.getPixel(new RGB(0xFF,0xFF,0xFF)));
             }
         }
     }
     
-    public static void setAlpha(ImageData imageData) {
+    public static void setAlpha(ImageData imageData, float alpha) {
         int width = imageData.width;
         int height = imageData.height;
         
@@ -52,7 +45,7 @@ public class IconFun {
         //System.arraycopy(alphaData,0,copyData,0,copyData.length);
         for(int x = 0; x < width; x++) {
             for(int y = 0; y < height; y++) {
-                imageData.setAlpha(x, y, (int)  (imageData.getAlpha(x, y) * 0.5));
+                imageData.setAlpha(x, y, (int)  (imageData.getAlpha(x, y) * alpha));
             }
         }
 //                System.out.printf("%03d ",copyData[i]);

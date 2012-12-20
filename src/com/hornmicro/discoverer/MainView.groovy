@@ -5,6 +5,7 @@ package com.hornmicro.discoverer
 import org.eclipse.swt.SWT
 import org.eclipse.swt.events.SelectionAdapter
 import org.eclipse.swt.events.SelectionEvent
+import org.eclipse.swt.graphics.GC
 import org.eclipse.swt.graphics.Image
 import org.eclipse.swt.graphics.ImageData
 import org.eclipse.swt.internal.cocoa.NSImage
@@ -41,13 +42,15 @@ class MainView extends Composite {
         
         
         //Button button = new Button(this, SWT.PUSH)
-        NSImage img = IconFun.getSystemImageForID(IconFun.getIconContstant("sbFd"))
+        NSImage img = IconFun.getSystemImageForID(IconFun.getIconContstant("sbAp"))
         
         Image image = Image.cocoa_new (this.shell.display, SWT.BITMAP, img)
+        
         ImageData imageData = image.getImageData()
+        ImageData imageData2 = imageData.clone()
         image.dispose()
         
-        IconFun.setAlpha(imageData)
+        IconFun.setAlpha(imageData, 0.5f)
 //        byte[] alphaData = imageData.alphaData
 //        byte[] copyData = new byte[alphaData.size()]
 //        System.arraycopy(alphaData,0,copyData,copyData.size())
@@ -58,8 +61,9 @@ class MainView extends Composite {
         
         image = new Image(this.shell.display, imageData)
         
-        IconFun.invert(imageData)
-        Image imageWhite = new Image(this.shell.display, imageData)
+        //IconFun.setAlpha(imageData2, 0.9f)
+        IconFun.invert(imageData2)
+        Image imageWhite = new Image(this.shell.display, imageData2)
         
         
 //        button.text = "hello"
@@ -96,7 +100,6 @@ class MainView extends Composite {
               if(lastItem) {
                   lastItem.image = image
               }
-              println "setting"
               ti.image = imageWhite
               lastItem = ti
             }
@@ -209,38 +212,38 @@ class MainView extends Composite {
         kInternetLocationGenericIcon  : 'ilge',
         
         kAppearanceFolderIcon         : 'appr',
-        kAppleExtrasFolderIcon        : 0x616578C4/*'aexƒ'*/,
+        kAppleExtrasFolderIcon        : 0x616578C4/*'aex��'*/,
         kAppleMenuFolderIcon          : 'amnu',
         kApplicationsFolderIcon       : 'apps',
         kApplicationSupportFolderIcon : 'asup',
-        kAssistantsFolderIcon         : 0x617374C4/*'astƒ'*/,
+        kAssistantsFolderIcon         : 0x617374C4/*'ast��'*/,
         kColorSyncFolderIcon          : 'prof',
         kContextualMenuItemsFolderIcon : 'cmnu',
         kControlPanelDisabledFolderIcon : 'ctrD',
         kControlPanelFolderIcon       : 'ctrl',
-        kControlStripModulesFolderIcon : 0x736476C4/*'sdvƒ'*/,
+        kControlStripModulesFolderIcon : 0x736476C4/*'sdv��'*/,
         kDocumentsFolderIcon          : 'docs',
         kExtensionsDisabledFolderIcon : 'extD',
         kExtensionsFolderIcon         : 'extn',
         kFavoritesFolderIcon          : 'favs',
         kFontsFolderIcon              : 'font',
-        kHelpFolderIcon               : (int)0xC4686C70/*'ƒhlp' */,
-        kInternetFolderIcon           : 0x696E74C4/*'intƒ'*/,
-        kInternetPlugInFolderIcon     : (int)0xC46E6574/*'ƒnet' */,
+        kHelpFolderIcon               : (int)0xC4686C70/*'��hlp' */,
+        kInternetFolderIcon           : 0x696E74C4/*'int��'*/,
+        kInternetPlugInFolderIcon     : (int)0xC46E6574/*'��net' */,
         kInternetSearchSitesFolderIcon : 'issf',
-        kLocalesFolderIcon            : (int)0xC46C6F63/*'ƒloc' */,
-        kMacOSReadMeFolderIcon        : 0x6D6F72C4/*'morƒ'*/,
+        kLocalesFolderIcon            : (int)0xC46C6F63/*'��loc' */,
+        kMacOSReadMeFolderIcon        : 0x6D6F72C4/*'mor��'*/,
         kPublicFolderIcon             : 'pubf',
-        kPreferencesFolderIcon        : 0x707266C4/*'prfƒ'*/,
+        kPreferencesFolderIcon        : 0x707266C4/*'prf��'*/,
         kPrinterDescriptionFolderIcon : 'ppdf',
-        kPrinterDriverFolderIcon      : (int)0xC4707264/*'ƒprd' */,
+        kPrinterDriverFolderIcon      : (int)0xC4707264/*'��prd' */,
         kPrintMonitorFolderIcon       : 'prnt',
         kRecentApplicationsFolderIcon : 'rapp',
         kRecentDocumentsFolderIcon    : 'rdoc',
         kRecentServersFolderIcon      : 'rsrv',
-        kScriptingAdditionsFolderIcon : (int)0xC4736372/*'ƒscr' */,
-        kSharedLibrariesFolderIcon    : (int)0xC46C6962/*'ƒlib' */,
-        kScriptsFolderIcon            : 0x736372C4/*'scrƒ'*/,
+        kScriptingAdditionsFolderIcon : (int)0xC4736372/*'��scr' */,
+        kSharedLibrariesFolderIcon    : (int)0xC46C6962/*'��lib' */,
+        kScriptsFolderIcon            : 0x736372C4/*'scr��'*/,
         kShutdownItemsDisabledFolderIcon : 'shdD',
         kShutdownItemsFolderIcon      : 'shdf',
         kSpeakableItemsFolder         : 'spki',
@@ -248,9 +251,9 @@ class MainView extends Composite {
         kStartupItemsFolderIcon       : 'strt',
         kSystemExtensionDisabledFolderIcon : 'macD',
         kSystemFolderIcon             : 'macs',
-        kTextEncodingsFolderIcon      : (int)0xC4746578/*'ƒtex' */,
-        kUsersFolderIcon              : 0x757372C4/*'usrƒ'*/,
-        kUtilitiesFolderIcon          : 0x757469C4/*'utiƒ'*/,
+        kTextEncodingsFolderIcon      : (int)0xC4746578/*'��tex' */,
+        kUsersFolderIcon              : 0x757372C4/*'usr��'*/,
+        kUtilitiesFolderIcon          : 0x757469C4/*'uti��'*/,
         kVoicesFolderIcon             : 'fvoc',
         
         kToolbarCustomizeIcon         : 'tcus',
