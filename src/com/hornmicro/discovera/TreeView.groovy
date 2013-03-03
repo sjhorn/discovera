@@ -1,4 +1,4 @@
-package com.hornmicro.discoverer
+package com.hornmicro.discovera
 
 import java.text.DecimalFormat
 

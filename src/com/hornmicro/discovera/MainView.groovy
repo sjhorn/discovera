@@ -1,4 +1,4 @@
-package com.hornmicro.discoverer
+package com.hornmicro.discovera
 
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.SashForm

@@ -1,6 +1,7 @@
 # Discovera 
+_An adventure in finding files._
 
-An adventure in finding files.
+![Discovera beta](Discovera_0.1.png "Discovera beta")
 
 # Inspired by 
 
