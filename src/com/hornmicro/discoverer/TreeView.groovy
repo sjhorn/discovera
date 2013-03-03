@@ -1,9 +1,11 @@
 package com.hornmicro.discoverer
 
-import java.nio.file.Files;
 import java.text.DecimalFormat
 
 import org.eclipse.swt.SWT
+import org.eclipse.swt.events.ControlAdapter
+import org.eclipse.swt.events.ControlEvent
+import org.eclipse.swt.graphics.Rectangle
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Display
@@ -20,24 +22,40 @@ import com.hornmicro.util.MainThreader
 class TreeView extends Composite {
     File[] roots
     Closure filter = { !it.name.startsWith(".") }
+    Tree tree
     
     public TreeView(Composite parent, File[] roots) {
         super(parent, SWT.NONE)
         this.roots = roots
-        setLayout(new FillLayout())
         createView()
     }
     
     public TreeView(Composite parent, File root) {
         super(parent, SWT.NONE)
         this.roots = root.listFiles().findAll(filter)
-        setLayout(new FillLayout())
         createView()
     }
     
+    void controlResized(ControlEvent e) {
+        if(tree) {
+            Rectangle bounds = getClientArea()
+            bounds.y = -1
+            tree.setBounds(bounds)
+        }
+    }
+    
     void createView() {
-        Tree tree = new Tree(this, SWT.VIRTUAL)
+        //setLayout(new FillLayout())
+        addControlListener(new ControlAdapter() {
+            public void controlResized(ControlEvent e) {
+                TreeView.this.controlResized(e)
+            }
+        })
+        
+        
+        tree = new Tree(this, SWT.VIRTUAL)
         tree.setHeaderVisible(true);
+        
         TreeColumn column1 = new TreeColumn(tree, SWT.LEFT);
         column1.setText("               Name");
         column1.setWidth(200);
@@ -87,7 +105,7 @@ class TreeView extends Composite {
         Map.Entry entry = symbols.find { size >= it.value }
         return entry ? 
             new DecimalFormat("#.#").format(size / entry.value)+ " "+entry.key+"  " : 
-            " --  "
+            ' --  '
     }
     
     static main(args) {
@@ -105,4 +123,5 @@ class TreeView extends Composite {
             display.dispose()
         }
     }
+
 }

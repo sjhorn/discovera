@@ -24,3 +24,4 @@ Making yet another file finder/explorer is was inspired by Kirby Ferguson's [Eve
 * Toolbar fonts are generated from [ Font Awesome ](http://fortawesome.github.com/Font-Awesome/)
 * The Application icon is based on a commerical free icon set from [Minicons Free Vector Icons Pack](http://www.webalys.com/minicons)
 * The ability to run on the main thread without specifying -XstartOnFirstThread is thanks to [Silenio Quarti's code](https://bugs.eclipse.org/bugs/show_bug.cgi?id=389486)
+* Correcting the top line of the tree/table header was based on the suggestion here by [gcbrueckmann on stack overflow](http://stackoverflow.com/questions/8263968/nstableheaderview-adds-a-line)

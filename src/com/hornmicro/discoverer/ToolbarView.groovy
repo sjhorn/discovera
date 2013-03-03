@@ -26,16 +26,18 @@ class ToolbarView {
         item = new ToolItem(toolbar, SWT.SEPARATOR)
         item.setWidth(1)
         
-        item = new ToolItem(toolbar, SWT.PUSH)
-        item.text = "Info"
-        item.image = new Image(toolbar.shell.display, "gfx/22gray/info-sign.png")
-        
-        item = new ToolItem(toolbar, SWT.SEPARATOR)
-        item.setWidth(SWT.DEFAULT)
+//        item = new ToolItem(toolbar, SWT.PUSH)
+//        item.text = "Info"
+//        item.image = new Image(toolbar.shell.display, "gfx/22gray/info-sign.png")
+//        
+//        item = new ToolItem(toolbar, SWT.SEPARATOR)
+//        item.setWidth(SWT.DEFAULT)
         
         item = new ToolItem(toolbar, SWT.RADIO)
         item.text = "List"
         item.image = new Image(toolbar.shell.display, "gfx/22gray/align-justify.png")
+        item.setSelection(true)
+        
         item = new ToolItem(toolbar, SWT.RADIO)
         item.text = "Columns"
         item.image = new Image(toolbar.shell.display, "gfx/22gray/columns.png")
@@ -64,11 +66,11 @@ class ToolbarView {
         item.text = "Settings"
         item.image = new Image(toolbar.shell.display, "gfx/22gray/cog.png")
         
-        item = new ToolItem(toolbar, SWT.SEPARATOR)
-        Text search = new Text(toolbar, SWT.SEARCH | SWT.ICON_SEARCH | SWT.ICON_CANCEL)
-        search.text = ""
-        item.setControl(search)
-        item.setWidth(150)
+//        item = new ToolItem(toolbar, SWT.SEPARATOR)
+//        Text search = new Text(toolbar, SWT.SEARCH | SWT.ICON_SEARCH | SWT.ICON_CANCEL)
+//        search.text = ""
+//        item.setControl(search)
+//        item.setWidth(150)
     }
 
 }
