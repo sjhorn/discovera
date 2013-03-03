@@ -44,15 +44,17 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
         view.createContents()
         wireView()
         
+        view.layout(false)
         return view
     }
     
     void wireView() {
         
         // wire up child controllers
+        new ToolbarController(view:view.toolbarView).wireView()
         new SidebarController(view:view.sidebarView).wireView()
-        
-        
+        new TreeController(view:view.treeView).wireView()
+        new StatusbarController(view:view.statusbarView).wireView()
     }
     
     void widgetDisposed(DisposeEvent de) {

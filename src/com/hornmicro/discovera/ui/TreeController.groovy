@@ -1,14 +1,16 @@
 package com.hornmicro.discovera.ui
 
-import groovy.transform.CompileStatic
+import groovy.transform.CompileStatic;
 
 @CompileStatic
-class SidebarController {
-    SidebarView view
+class TreeController {
+
+    TreeView view
     
     void wireView() {
+        view?.setRoot(new File("/Volumes"))
         view?.createContents()
         
     }
-    
+
 }

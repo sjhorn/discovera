@@ -28,7 +28,6 @@ class TreeView extends Composite implements ControlListener {
      
     public TreeView(Composite parent, int style) {
         super(parent, style)
-        createContents()
     }
     
     void setRoot(File root) {
@@ -104,6 +103,7 @@ class TreeView extends Composite implements ControlListener {
         } else {
             tree.setItemCount(0)
         }
+        controlResized(null)
     }
     
     String byteSized(Long size) {

@@ -1,5 +1,7 @@
 package com.hornmicro.discovera.ui
 
+import groovy.transform.CompileStatic;
+
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.SashForm
 import org.eclipse.swt.graphics.Color
@@ -13,6 +15,8 @@ import org.eclipse.swt.widgets.Shell
 import com.hornmicro.util.MainThreader
 import com.hornmicro.util.Resources
 
+
+@CompileStatic
 class MainView extends Composite {
     ToolbarView toolbarView
     SidebarView sidebarView

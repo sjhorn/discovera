@@ -1,5 +1,7 @@
 package com.hornmicro.discovera.ui
 
+import groovy.transform.CompileStatic
+
 import org.eclipse.swt.SWT
 import org.eclipse.swt.events.SelectionAdapter
 import org.eclipse.swt.events.SelectionEvent
@@ -11,9 +13,9 @@ import org.eclipse.swt.widgets.Shell
 import org.eclipse.swt.widgets.Tree
 import org.eclipse.swt.widgets.TreeItem
 
-import com.hornmicro.util.CocoaTools;
-import com.hornmicro.util.MainThreader;
-
+import com.hornmicro.util.CocoaTools
+import com.hornmicro.util.MainThreader
+@CompileStatic
 class SidebarView extends Composite {
 
     public SidebarView(Composite parent, int style) {
@@ -23,7 +25,6 @@ class SidebarView extends Composite {
     void createContents() {
         setLayout(new FillLayout())
         Tree tree = new Tree (this, SWT.SOURCE_LIST)
-        tree.setItemHeight(22)
         
         // Favorites
         TreeItem favorites = new TreeItem (tree, SWT.GROUP_ITEM)
@@ -55,7 +56,7 @@ class SidebarView extends Composite {
         shell.display.asyncExec {
             devices.expanded = true
         }
-        new File("/Volumes").eachFile { file ->
+        new File("/Volumes").eachFile { File file ->
             if(!file.isHidden()) {
                 TreeItem item = new TreeItem(devices, SWT.NONE)
                 item.text = " "+file.name
@@ -70,7 +71,7 @@ class SidebarView extends Composite {
         MainThreader.run {
             Display display = new Display()
             Shell shell = new Shell(display)
-            new SidebarView(shell)
+            new SidebarView(shell, SWT.NONE)
             shell.setLayout(new FillLayout())
             shell.setSize(200, 400)
             shell.open()

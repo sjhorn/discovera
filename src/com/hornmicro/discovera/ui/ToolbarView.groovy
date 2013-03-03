@@ -1,17 +1,20 @@
 package com.hornmicro.discovera.ui
 
+import groovy.transform.CompileStatic
+
 import org.eclipse.swt.SWT
 import org.eclipse.swt.graphics.Image
 import org.eclipse.swt.widgets.Text
 import org.eclipse.swt.widgets.ToolBar
 import org.eclipse.swt.widgets.ToolItem
 
+
+@CompileStatic
 class ToolbarView {
     ToolBar toolbar
     
     public ToolbarView(ToolBar toolbar) {
         this.toolbar = toolbar
-        createContents()
     }
     
     void createContents() {

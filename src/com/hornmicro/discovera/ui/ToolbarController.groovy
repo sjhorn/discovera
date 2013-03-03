@@ -1,14 +1,11 @@
 package com.hornmicro.discovera.ui
 
-import groovy.transform.CompileStatic
+class ToolbarController {
 
-@CompileStatic
-class SidebarController {
-    SidebarView view
+    ToolbarView view
     
     void wireView() {
         view?.createContents()
         
     }
-    
 }
