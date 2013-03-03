@@ -45,13 +45,14 @@ class TreeView extends Composite {
     }
     
     void createView() {
-        //setLayout(new FillLayout())
+        
+        // Manually do layout to allow hiding the first line of the header cell :)
+        // as suggested here http://stackoverflow.com/questions/8263968/nstableheaderview-adds-a-line
         addControlListener(new ControlAdapter() {
             public void controlResized(ControlEvent e) {
                 TreeView.this.controlResized(e)
             }
         })
-        
         
         tree = new Tree(this, SWT.VIRTUAL)
         tree.setHeaderVisible(true);
