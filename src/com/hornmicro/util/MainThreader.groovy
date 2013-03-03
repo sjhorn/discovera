@@ -1,13 +1,17 @@
 package com.hornmicro.util
 
+import groovy.transform.CompileStatic
+
 import java.util.concurrent.CountDownLatch
 
+import org.codehaus.groovy.runtime.StackTraceUtils
 import org.eclipse.swt.internal.Callback
 import org.eclipse.swt.internal.cocoa.NSObject
 import org.eclipse.swt.internal.cocoa.OS
 
 // Based on Silenio Quarti's code from https://bugs.eclipse.org/bugs/show_bug.cgi?id=389486
 
+@CompileStatic
 class MainThreader {
     static Callback callback
     static Closure closure
@@ -44,6 +48,7 @@ class MainThreader {
             callback.dispose()
             closure?.call()
         } catch (Throwable e) {
+            StackTraceUtils.deepSanitize(e)
             e.printStackTrace()
         } finally {
             latch.countDown()
