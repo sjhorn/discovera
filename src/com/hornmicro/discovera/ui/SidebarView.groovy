@@ -17,69 +17,30 @@ import com.hornmicro.util.CocoaTools
 import com.hornmicro.util.MainThreader
 @CompileStatic
 class SidebarView extends Composite {
-
+    Tree tree
+    TreeItem favorites
+    TreeItem devices
+    
     public SidebarView(Composite parent, int style) {
         super(parent, style)
     }
     
     void createContents() {
         setLayout(new FillLayout())
-        Tree tree = new Tree (this, SWT.SOURCE_LIST)
+        tree = new Tree (this, SWT.SOURCE_LIST)
         
         // Favorites
-        TreeItem favorites = new TreeItem (tree, SWT.GROUP_ITEM)
+        favorites = new TreeItem (tree, SWT.GROUP_ITEM)
         favorites.text = "FAVORITES"
         shell.display.asyncExec {   
             favorites.expanded = true
         }
         
-        File home = new File(System.getProperty("user.home"))
-        [
-            new File(home, "Desktop"),
-            home,
-            new File(home, "Documents"),
-            new File(home, "Downloads"),
-            new File(home, "Music"),
-            new File(home, "Movies")
-        ].each { File file ->
-            if(file.exists()) {
-                TreeItem item = new TreeItem(favorites, SWT.NONE)
-                item.text = " "+file.name
-                item.image = new Image(shell.display, CocoaTools.imageForFilePath(file.absolutePath), SWT.IMAGE_GRAY)
-            }
-        }
-        
-        
         // Devices
-        TreeItem devices = new TreeItem (tree, SWT.GROUP_ITEM)
+        devices = new TreeItem (tree, SWT.GROUP_ITEM)
         devices.text = "DEVICES"
         shell.display.asyncExec {
             devices.expanded = true
-        }
-        new File("/Volumes").eachFile { File file ->
-            if(!file.isHidden()) {
-                TreeItem item = new TreeItem(devices, SWT.NONE)
-                item.text = " "+file.name
-                item.image = CocoaTools.imageForFilePath(file.absolutePath)
-            }
-        }
-        
-        layout()
-    }
-    
-    static main(args) {
-        MainThreader.run {
-            Display display = new Display()
-            Shell shell = new Shell(display)
-            new SidebarView(shell, SWT.NONE)
-            shell.setLayout(new FillLayout())
-            shell.setSize(200, 400)
-            shell.open()
-            while (!shell.isDisposed()) {
-                if (!display.readAndDispatch())
-                    display.sleep()
-            }
-            display.dispose()
         }
     }
 }

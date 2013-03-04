@@ -3,8 +3,7 @@ package com.hornmicro.discovera.ui
 import groovy.transform.CompileStatic;
 
 @CompileStatic
-class StatusbarController {
-
+class StatusbarController extends Controller {
     StatusbarView view
     
     void wireView() {

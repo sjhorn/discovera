@@ -1,5 +1,7 @@
 package com.hornmicro.util
 
+import groovy.transform.CompileStatic;
+
 import org.eclipse.swt.SWT
 import org.eclipse.swt.graphics.Image
 import org.eclipse.swt.graphics.ImageData
@@ -12,9 +14,10 @@ import org.eclipse.swt.internal.cocoa.NSWorkspace
 import org.eclipse.swt.internal.cocoa.OS
 import org.eclipse.swt.widgets.Display
 
+@CompileStatic
 class CocoaTools {
-    static Map iconCache = [:]
-
+    static Map<Integer, Image> iconCache = [:]
+    
     static Image imageForFilePath(String path) {
         return imageForFilePathAtWidth(path, 16)
     }
@@ -108,5 +111,11 @@ class CocoaTools {
 
     static int getIconContstant(String str) {
         return ((str.charAt(0) as int) << 24) + ((str.charAt(1) as int ) <<16) + ((str.charAt(2) as int) <<8) + (str.charAt(3) as int)
+    }
+    
+    static void dispose() {
+        iconCache.each { Map.Entry<Integer, Image> entry ->
+            entry?.getValue()?.dispose()
+        }
     }
 }

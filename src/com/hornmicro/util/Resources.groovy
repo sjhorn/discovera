@@ -3,6 +3,7 @@ package com.hornmicro.util
 
 import java.util.Map.Entry
 
+import org.eclipse.swt.SWT
 import org.eclipse.swt.graphics.Color
 import org.eclipse.swt.graphics.Image
 import org.eclipse.swt.graphics.RGB
@@ -19,6 +20,17 @@ class Resources {
             }
         }
         return imageCache[path]
+    }
+    
+    static Image getGrayImageForFilePath(String path) {
+        if(!imageCache["grayFileImage:${path}"]) {
+            imageCache["grayFileImage:${path}"] = new Image(Display.getDefault(), getImageForFilePath(path), SWT.IMAGE_GRAY) 
+        }
+        return imageCache["grayFileImage:${path}"]
+    }
+    
+    static Image getImageForFilePath(String path) {
+        return CocoaTools.imageForFilePath(path)
     }
     
     static Color getColor(RGB color) {
@@ -51,6 +63,8 @@ class Resources {
                 entry.getValue().dispose() 
             }
             colorCache.clear()
+            
+            CocoaTools.dispose()
         }
     }
     

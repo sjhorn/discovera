@@ -28,7 +28,7 @@ class MainView extends Composite {
     }
     
     void createContents() {
-        setBackground(new Color(shell.display, 0xb4, 0xb4, 0xb4))
+        setBackground(Resources.getColor(0xb4, 0xb4, 0xb4))
         GridLayout gLayout = new GridLayout(1, false)
         gLayout.with {
             marginWidth = marginHeight = 0
@@ -56,7 +56,5 @@ class MainView extends Composite {
         GridData textLData = new GridData (SWT.FILL, SWT.FILL, true, false, 1, 1)
         textLData.heightHint = 22
         statusbarView.layoutData = textLData
-        
-        layout()
     }
 }

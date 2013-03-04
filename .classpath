@@ -15,6 +15,7 @@
 	<classpathentry kind="lib" path="lib/jface/org.eclipse.core.databinding.beans_1.2.200.v20120523-1955.jar"/>
 	<classpathentry kind="lib" path="lib/jface/org.eclipse.core.databinding.observable_1.4.1.v20120521-2329.jar"/>
 	<classpathentry kind="lib" path="lib/jface/org.eclipse.core.databinding.property_1.4.100.v20120523-1955.jar"/>
+	<classpathentry kind="lib" path="lib/eventbus/mbassador-1.0.6.RC.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/Java SE 7 (MacOS X Default)"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -12,19 +12,28 @@ import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Control
 import org.eclipse.swt.widgets.Shell
+import org.mbassy.MBassador
+import org.mbassy.listener.Listener
 
+import com.hornmicro.event.BusEvent
 import com.hornmicro.util.Resources
 
 @CompileStatic
 class MainController extends ApplicationWindow implements DisposeListener, Runnable, Window.IExceptionHandler {
+    private StatusbarController statusbarController
+    private TreeController treeController
+    private SidebarController sidebarController
+    private ToolbarController toolbarController
     Composite parent
     MainView view
+    MBassador<BusEvent> bus
     
     public MainController() {
         super(null)
     }
 
     void run() {
+        bus.subscribe(this)
         blockOnOpen = true
         open()
     }
@@ -42,6 +51,12 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
         parent.setLayout(new FillLayout())
         view = new MainView(parent, SWT.NONE)
         view.createContents()
+        
+        toolbarController = new ToolbarController(view:view.toolbarView, bus:bus)
+        sidebarController = new SidebarController(view:view.sidebarView, bus:bus)
+        treeController = new TreeController(view:view.treeView, bus:bus)
+        statusbarController = new StatusbarController(view:view.statusbarView, bus:bus)
+        
         wireView()
         
         view.layout(false)
@@ -49,16 +64,28 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
     }
     
     void wireView() {
-        
-        // wire up child controllers
-        new ToolbarController(view:view.toolbarView).wireView()
-        new SidebarController(view:view.sidebarView).wireView()
-        new TreeController(view:view.treeView).wireView()
-        new StatusbarController(view:view.statusbarView).wireView()
+        toolbarController.wireView()
+        sidebarController.wireView()
+        treeController.wireView()
+        statusbarController.wireView()
+    }
+    
+    @Listener
+    void onBusEvent(BusEvent event) {
+        switch(event.type) {
+            case BusEvent.Type.FILE_SELECTED:
+                if(event.src instanceof SidebarController) {
+                    treeController.setRoot((File) event.data)
+                }
+                break
+            default:
+                break
+        }
     }
     
     void widgetDisposed(DisposeEvent de) {
         Resources.dispose()
+        bus?.unsubscribe(this)
     }
 
     void handleException(Throwable e) {
