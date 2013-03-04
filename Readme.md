@@ -5,7 +5,7 @@ _An adventure in finding files._
 
 # Inspired by 
 
-Making yet another file finder/explorer is was inspired by Kirby Ferguson's [Everything is a Remix: Part 3](http://www.amara.org/en/videos/DAAPo8OJkdip/info/everything-is-a-remix-part-3/)
+Making yet another file finder/explorer was inspired by Kirby Ferguson's [Everything is a Remix: Part 3](http://www.amara.org/en/videos/DAAPo8OJkdip/info/everything-is-a-remix-part-3/)
 
     Put simply copying is how we learn
 	We can't introduce anything new until we're fluent with the language of our domain and we do that through emulation
