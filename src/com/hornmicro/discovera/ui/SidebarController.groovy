@@ -2,10 +2,14 @@ package com.hornmicro.discovera.ui
 
 import groovy.transform.CompileStatic
 
+import org.eclipse.jface.viewers.ILabelProvider
+import org.eclipse.jface.viewers.ILabelProviderListener;
+import org.eclipse.jface.viewers.ITreeContentProvider
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT
 import org.eclipse.swt.events.SelectionEvent
 import org.eclipse.swt.events.SelectionListener
-import org.eclipse.swt.widgets.Event
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.TreeItem
 
 import com.hornmicro.event.BusEvent
@@ -58,6 +62,55 @@ class SidebarController extends Controller implements SelectionListener  {
     
     void widgetDefaultSelected(SelectionEvent se) {
     
+    }
+    
+    // Label and Content Provider
+
+    public void dispose() {
+        
+    }
+
+    public void inputChanged(Viewer viewer, Object oldModel, Object newModel) {
+        
+    }
+
+    public void addListener(ILabelProviderListener arg0) {
+        
+    }
+
+    public void removeListener(ILabelProviderListener arg0) {
+        
+    }
+
+    public boolean isLabelProperty(Object arg0, String arg1) {
+        return false;
+    }
+    
+    public Image getImage(Object arg0) {
+        return null;
+    }
+
+    public String getText(Object arg0) {
+        return null;
+    }
+
+    public Object[] getChildren(Object arg0) {
+        return null;
+    }
+
+    public Object[] getElements(Object arg0) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public Object getParent(Object arg0) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public boolean hasChildren(Object arg0) {
+        // TODO Auto-generated method stub
+        return false;
     }
     
 }

@@ -74,9 +74,10 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
     void onBusEvent(BusEvent event) {
         switch(event.type) {
             case BusEvent.Type.FILE_SELECTED:
-                if(event.src instanceof SidebarController) {
-                    treeController.setRoot((File) event.data)
-                }
+                treeController.setRoot((File) event.data)
+                break
+            case BusEvent.Type.FILES_SELECTED:
+                println "$event.data"
                 break
             default:
                 break

@@ -34,7 +34,7 @@ class TreeView extends Composite implements ControlListener {
         // as suggested here http://stackoverflow.com/questions/8263968/nstableheaderview-adds-a-line
         addControlListener(this)
         
-        tree = new Tree(this, SWT.VIRTUAL)
+        tree = new Tree(this, SWT.VIRTUAL | SWT.MULTI)
         tree.setHeaderVisible(true)
         
         TreeColumn column1 = new TreeColumn(tree, SWT.LEFT)
@@ -58,6 +58,7 @@ class TreeView extends Composite implements ControlListener {
             tree.setBounds(bounds)
         }
     }
+    
     public void controlMoved(ControlEvent e) {
     
     }

@@ -4,6 +4,7 @@ class BusEvent {
     enum Type {
         SELECTION,
         FILE_SELECTED,
+        FILES_SELECTED,
         FILE_OPEN 
     }
     Type type = Type.SELECTION
