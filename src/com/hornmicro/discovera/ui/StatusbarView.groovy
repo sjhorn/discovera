@@ -20,6 +20,7 @@ class StatusbarView extends Composite implements Listener, ShellListener {
     Color from
     Color to
     Color deactive
+    Label middleLabel
     public StatusbarView(Composite parent) {
         super(parent, SWT.NONE)
         
@@ -30,9 +31,9 @@ class StatusbarView extends Composite implements Listener, ShellListener {
     
     void createContents() {
         setLayout(new FillLayout(SWT.VERTICAL))
-        Label label = new Label(this, SWT.CENTER)
-        label.setForeground(Resources.getColor(0x5e, 0x5e, 0x5e))
-        label.text = "891 items, 14.25 GB available"
+        middleLabel = new Label(this, SWT.CENTER)
+        middleLabel.setForeground(Resources.getColor(0x5e, 0x5e, 0x5e))
+        middleLabel.text = "                        "
         
         addListener(SWT.Resize, this)
         shell.addShellListener(this)

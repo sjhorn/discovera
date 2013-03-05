@@ -17,6 +17,7 @@ import org.mbassy.listener.Listener
 
 import com.hornmicro.event.BusEvent
 import com.hornmicro.util.Resources
+import com.hornmicro.util.WidgetTools;
 
 @CompileStatic
 class MainController extends ApplicationWindow implements DisposeListener, Runnable, Window.IExceptionHandler {
@@ -75,10 +76,15 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
         switch(event.type) {
             case BusEvent.Type.FILE_SELECTED:
                 treeController.setRoot((File) event.data)
+                statusbarController.model.items = treeController.getVisibleElements().size()
+                statusbarController.model.selected = 0
                 break
             case BusEvent.Type.FILES_SELECTED:
-                println "$event.data"
+                statusbarController.model.selected = ((File[]) event.data)?.size() ?: 0
                 break
+            case BusEvent.Type.FILE_EXPANDED:
+            case BusEvent.Type.FILE_COLLAPSED:
+                statusbarController.model.items = treeController.getVisibleElements().size()
             default:
                 break
         }

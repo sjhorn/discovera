@@ -5,9 +5,11 @@ import groovy.transform.CompileStatic
 import java.text.DecimalFormat
 
 import org.eclipse.jface.viewers.ILabelProviderListener
-import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.IStructuredSelection
 import org.eclipse.jface.viewers.ITableLabelProvider
 import org.eclipse.jface.viewers.ITreeContentProvider
+import org.eclipse.jface.viewers.ITreeViewerListener
+import org.eclipse.jface.viewers.TreeExpansionEvent
 import org.eclipse.jface.viewers.TreeViewer
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.events.SelectionEvent
@@ -18,9 +20,10 @@ import org.eclipse.swt.widgets.TreeItem
 
 import com.hornmicro.event.BusEvent
 import com.hornmicro.util.CocoaTools
+import com.hornmicro.util.WidgetTools
 
 @CompileStatic
-class TreeController extends Controller implements SelectionListener, ITreeContentProvider, ITableLabelProvider  {
+class TreeController extends Controller implements SelectionListener, ITreeContentProvider, ITableLabelProvider, ITreeViewerListener  {
     static final String FILE = "file"
     TreeView view
     TreeViewer viewer
@@ -35,7 +38,8 @@ class TreeController extends Controller implements SelectionListener, ITreeConte
             viewer = new TreeViewer(tree)
             viewer.setContentProvider(this)
             viewer.setLabelProvider(this)
-             
+            
+            viewer.addTreeListener(this) 
             tree.addSelectionListener(this)
             
             if(roots) {
@@ -56,6 +60,14 @@ class TreeController extends Controller implements SelectionListener, ITreeConte
             viewer?.setInput(roots)
         }
     }
+    
+    List<TreeItem> getVisibleElements() {
+        List<TreeItem> items
+        view.display.syncExec {
+            items = WidgetTools.getVisibleElements(view.tree)
+        }
+        return items
+    } 
     
     void widgetSelected(SelectionEvent se) {
         File[] files = (File[]) ((IStructuredSelection) viewer.getSelection()).toArray()
@@ -122,7 +134,7 @@ class TreeController extends Controller implements SelectionListener, ITreeConte
         if(col == 0) {
             return CocoaTools.imageForFilePath( ((File)file).absolutePath )
         }
-        return null;
+        return null
     }
 
     String getColumnText(Object item, int col) {
@@ -140,5 +152,15 @@ class TreeController extends Controller implements SelectionListener, ITreeConte
         }
         return null
     }
+    
+    // ITreeViewerListener
+    void treeCollapsed(TreeExpansionEvent tee) {
+        File file = (File) tee.getElement()
+        bus.publishAsync(new BusEvent(type: BusEvent.Type.FILE_COLLAPSED, data: file, src: this))
+    }
 
+    void treeExpanded(TreeExpansionEvent tee) {
+        File file = (File) tee.getElement()
+        bus.publishAsync(new BusEvent(type: BusEvent.Type.FILE_EXPANDED, data: file, src: this))
+    }
 }
