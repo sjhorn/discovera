@@ -55,6 +55,20 @@ class SidebarController extends Controller implements SelectionListener  {
         widgetSelected(null)
     }
     
+    void setPath(File path) {
+        TreeItem match = (TreeItem) [ 
+            view.favorites.getItems(), 
+            view.devices.getItems() 
+        ].flatten().find { TreeItem item ->
+            File file = (File) item.getData()
+            return file == path
+        }
+        if(match) {
+            view.tree.setSelection(match)
+        }
+    }
+    
+    
     void widgetSelected(SelectionEvent se) {
         TreeItem[] selection = view.tree.getSelection()
         bus.publishAsync(new BusEvent(type: BusEvent.Type.FILE_SELECTED, data: selection[0].data, src: this))
@@ -63,54 +77,4 @@ class SidebarController extends Controller implements SelectionListener  {
     void widgetDefaultSelected(SelectionEvent se) {
     
     }
-    
-    // Label and Content Provider
-
-    public void dispose() {
-        
-    }
-
-    public void inputChanged(Viewer viewer, Object oldModel, Object newModel) {
-        
-    }
-
-    public void addListener(ILabelProviderListener arg0) {
-        
-    }
-
-    public void removeListener(ILabelProviderListener arg0) {
-        
-    }
-
-    public boolean isLabelProperty(Object arg0, String arg1) {
-        return false;
-    }
-    
-    public Image getImage(Object arg0) {
-        return null;
-    }
-
-    public String getText(Object arg0) {
-        return null;
-    }
-
-    public Object[] getChildren(Object arg0) {
-        return null;
-    }
-
-    public Object[] getElements(Object arg0) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public Object getParent(Object arg0) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public boolean hasChildren(Object arg0) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-    
 }

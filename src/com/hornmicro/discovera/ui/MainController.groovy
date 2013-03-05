@@ -86,7 +86,6 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
         Actions.selection(view.forward).connect(forwardAction)
         
         Bind.from(model, "historyIndex").toWritableValue { sel -> 
-            println "Noticed change"
             view.back.setEnabled(false)
             view.forward.setEnabled(false)
             
@@ -105,12 +104,12 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
     
     void goBack() {
         File lastFile = model.back()
-        println "Would go back to $lastFile"
+        sidebarController.setPath(lastFile)
     }
     
     void goForward() {
         File nextFile = model.forward()
-        println "Would go forward to $nextFile"
+        sidebarController.setPath(nextFile)
     }
     
     @Listener
