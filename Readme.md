@@ -17,7 +17,10 @@ Making yet another file finder/explorer was inspired by Kirby Ferguson's [Everyt
 	Need copying until the foundation of knowledge and understanding
 	And after that... things can get interesting …
 
+# Beta Download
 
+A simple runnable jar for OSX is available -
+[Discovera Beta](https://s3-ap-southeast-2.amazonaws.com/discovera/discovera.jar)
 
 #Attribution
 

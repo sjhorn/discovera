@@ -1,22 +1,37 @@
 package com.hornmicro.util
 
 
+import groovy.transform.CompileStatic
+
 import java.util.Map.Entry
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT
 import org.eclipse.swt.graphics.Color
 import org.eclipse.swt.graphics.Image
 import org.eclipse.swt.graphics.RGB
 import org.eclipse.swt.widgets.Display
 
+@CompileStatic
 class Resources {
     static final Map<String, Image> imageCache = [:]
     static final Map<RGB, Color> colorCache = [:]
+    static final boolean inJar = Resources.protectionDomain.codeSource.location.toURI().path.endsWith(".jar")
     
     static Image getImage(String path) {
         if(!imageCache.containsKey(path)) {
             Display.getDefault().syncExec {
-                imageCache[path] = new Image(Display.getDefault(), path)
+                if(inJar) {
+                    InputStream is = Resources.getClass().getResourceAsStream("/${path}")
+                    if(is) {
+                        imageCache[path] = new Image(Display.getDefault(), is)
+                        is.close()
+                    } else {
+                        MessageDialog.openInformation(null, "Error", "Unabled to load /${path}")
+                    }
+                } else {
+                    imageCache[path] = new Image(Display.getDefault(), path)
+                }
             }
         }
         return imageCache[path]

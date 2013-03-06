@@ -70,9 +70,11 @@ class MainView extends Composite {
         columns = new ToolItem(toolbar, SWT.RADIO)
         columns.text = "Columns"
         columns.image = Resources.getImage("gfx/22gray/columns.png")
+        columns.enabled = false
         icons = new ToolItem(toolbar, SWT.RADIO)
         icons.text = "Icons"
         icons.image = Resources.getImage("gfx/22gray/th-large.png")
+        icons.enabled = false
 
         item = new ToolItem(toolbar, SWT.SEPARATOR)
         item.setWidth(SWT.DEFAULT)
