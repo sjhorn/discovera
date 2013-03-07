@@ -105,11 +105,13 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
     void goBack() {
         File lastFile = model.back()
         sidebarController.setPath(lastFile)
+        treeController.setRoot(lastFile)
     }
     
     void goForward() {
         File nextFile = model.forward()
         sidebarController.setPath(nextFile)
+        treeController.setRoot(nextFile)
     }
     
     @Listener
@@ -120,6 +122,7 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
                 treeController.setRoot(file)
                 model.title = file.name
                 model.addHistory(file)
+                sidebarController.setPath(file)
                 
                 statusbarController.model.items = treeController.getVisibleElements().size()
                 statusbarController.model.selected = 0

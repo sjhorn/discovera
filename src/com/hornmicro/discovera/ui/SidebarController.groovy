@@ -10,6 +10,7 @@ import org.eclipse.swt.SWT
 import org.eclipse.swt.events.SelectionEvent
 import org.eclipse.swt.events.SelectionListener
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem
 
 import com.hornmicro.event.BusEvent
@@ -56,15 +57,20 @@ class SidebarController extends Controller implements SelectionListener  {
     }
     
     void setPath(File path) {
-        TreeItem match = (TreeItem) [ 
-            view.favorites.getItems(), 
-            view.devices.getItems() 
-        ].flatten().find { TreeItem item ->
-            File file = (File) item.getData()
-            return file == path
-        }
-        if(match) {
-            view.tree.setSelection(match)
+        view.display.syncExec {
+            TreeItem match = (TreeItem) [ 
+                view.favorites.getItems(), 
+                view.devices.getItems() 
+            ].flatten().find { TreeItem item ->
+                File file = (File) item.getData()
+                return file == path
+            }
+            
+            if(match && (!view.tree.getSelection() || view.tree.getSelection()[0] != match) ) {
+                view.tree.setSelection(match)
+            } else if (!match) {
+                view.tree.deselectAll()
+            }
         }
     }
     

@@ -4,6 +4,8 @@ import groovy.transform.CompileStatic
 
 import java.text.DecimalFormat
 
+import org.eclipse.jface.viewers.DoubleClickEvent
+import org.eclipse.jface.viewers.IDoubleClickListener
 import org.eclipse.jface.viewers.ILabelProviderListener
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.eclipse.jface.viewers.ITableLabelProvider
@@ -23,7 +25,7 @@ import com.hornmicro.util.CocoaTools
 import com.hornmicro.util.WidgetTools
 
 @CompileStatic
-class TreeController extends Controller implements SelectionListener, ITreeContentProvider, ITableLabelProvider, ITreeViewerListener  {
+class TreeController extends Controller implements SelectionListener, ITreeContentProvider, ITableLabelProvider, ITreeViewerListener, IDoubleClickListener  {
     static final String FILE = "file"
     TreeView view
     TreeViewer viewer
@@ -41,6 +43,7 @@ class TreeController extends Controller implements SelectionListener, ITreeConte
             
             viewer.addTreeListener(this) 
             tree.addSelectionListener(this)
+            viewer.addDoubleClickListener(this)
             
             if(roots) {
                 fileCache = [:]
@@ -162,5 +165,12 @@ class TreeController extends Controller implements SelectionListener, ITreeConte
     void treeExpanded(TreeExpansionEvent tee) {
         File file = (File) tee.getElement()
         bus.publishAsync(new BusEvent(type: BusEvent.Type.FILE_EXPANDED, data: file, src: this))
+    }
+
+    void doubleClick(DoubleClickEvent de) {
+        File file = (File) (((IStructuredSelection) de.selection).getFirstElement())
+        if(file) {
+            bus.publishAsync(new BusEvent(type: BusEvent.Type.FILE_SELECTED, data: file, src: this))
+        }
     }
 }
