@@ -22,12 +22,12 @@ class Resources {
         if(!imageCache.containsKey(path)) {
             Display.getDefault().syncExec {
                 if(inJar) {
-                    InputStream is = Resources.getClass().getResourceAsStream("/${path}")
+                    InputStream is = Resources.class.getClassLoader().getResourceAsStream(path)
                     if(is) {
                         imageCache[path] = new Image(Display.getDefault(), is)
                         is.close()
                     } else {
-                        MessageDialog.openInformation(null, "Error", "Unabled to load /${path}")
+                        MessageDialog.openInformation(null, "Error", "Unabled to load ${path}")
                     }
                 } else {
                     imageCache[path] = new Image(Display.getDefault(), path)

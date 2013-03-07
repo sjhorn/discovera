@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project Discovera">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <target name="create_run_jar">
+        <jar destfile="/Users/shorn/discovera.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="com.hornmicro.discovera.Discovera"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="/Users/shorn/dev/discovera/bin"/>
+        	<fileset dir="/Users/shorn/dev/discovera" includes="gfx/"/>
+            <zipfileset excludes="META-INF/*.SF" src="/Users/shorn/dev/discovera/lib/swt-3.101.0.sourcelist-cocoa_macosx-x86_64.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/Users/shorn/dev/discovera/lib/asm-4.0.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/Users/shorn/dev/discovera/lib/groovy-2.1.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/Users/shorn/dev/discovera/lib/jface/com.ibm.icu_4.4.2.v20110823.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/Users/shorn/dev/discovera/lib/jface/org.eclipse.core.commands_3.6.2.v20130123-162658.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/Users/shorn/dev/discovera/lib/jface/org.eclipse.equinox.common_3.6.100.v20120522-1841.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/Users/shorn/dev/discovera/lib/jface/org.eclipse.jface_3.8.102.v20130123-162658.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/Users/shorn/dev/discovera/lib/jface/org.eclipse.jface.databinding_1.6.0.v20120912-132807.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/Users/shorn/dev/discovera/lib/jface/org.eclipse.jface.text_3.8.2.v20121126-164145.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/Users/shorn/dev/discovera/lib/jface/org.eclipse.osgi_3.8.2.v20130124-134944.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/Users/shorn/dev/discovera/lib/jface/org.eclipse.core.databinding_1.4.1.v20120912-132807.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/Users/shorn/dev/discovera/lib/jface/org.eclipse.core.databinding.beans_1.2.200.v20120523-1955.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/Users/shorn/dev/discovera/lib/jface/org.eclipse.core.databinding.observable_1.4.1.v20120521-2329.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/Users/shorn/dev/discovera/lib/jface/org.eclipse.core.databinding.property_1.4.100.v20120523-1955.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/Users/shorn/dev/discovera/lib/eventbus/mbassador-1.0.6.RC.jar"/>
+        </jar>
+    </target>
+</project>
