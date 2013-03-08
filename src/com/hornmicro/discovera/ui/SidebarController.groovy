@@ -26,6 +26,16 @@ class SidebarController extends Controller implements SelectionListener  {
         view.createContents()
         view.tree.addSelectionListener(this)
         
+        refresh()
+        
+        view.tree.setSelection(view.favorites.getItem(0))
+        widgetSelected(null)
+    }
+    
+    void refresh() {
+        view.favorites.removeAll()
+        view.devices.removeAll()
+        
         File home = new File(System.getProperty("user.home"))
         [
             new File(home, "Desktop"),
@@ -51,9 +61,6 @@ class SidebarController extends Controller implements SelectionListener  {
                 item.data = file
             }
         }
-        
-        view.tree.setSelection(view.favorites.getItem(0))
-        widgetSelected(null)
     }
     
     void setPath(File path) {

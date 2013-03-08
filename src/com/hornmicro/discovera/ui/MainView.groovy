@@ -82,6 +82,8 @@ class MainView extends Composite {
         newFolder = new ToolItem(toolbar, SWT.PUSH)
         newFolder.text = "New Folder"
         newFolder.image = Resources.getImage("gfx/22gray/folder-close.png")
+        newFolder.enabled = false
+        
         delete = new ToolItem(toolbar, SWT.PUSH)
         delete.text = "Delete"
         delete.image = Resources.getImage("gfx/22gray/trash.png")
@@ -97,6 +99,7 @@ class MainView extends Composite {
         settings = new ToolItem(toolbar, SWT.PUSH)
         settings.text = "Settings"
         settings.image = Resources.getImage("gfx/22gray/cog.png")
+        settings.enabled = false
         
 //        item = new ToolItem(toolbar, SWT.SEPARATOR)
 //        Text search = new Text(toolbar, SWT.SEARCH | SWT.ICON_SEARCH | SWT.ICON_CANCEL)

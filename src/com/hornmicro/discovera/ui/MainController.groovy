@@ -3,7 +3,6 @@ package com.hornmicro.discovera.ui
 import groovy.transform.CompileStatic
 
 import org.codehaus.groovy.runtime.StackTraceUtils
-import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.action.Action
 import org.eclipse.jface.action.MenuManager
 import org.eclipse.jface.window.ApplicationWindow
@@ -12,6 +11,7 @@ import org.eclipse.swt.SWT
 import org.eclipse.swt.events.DisposeEvent
 import org.eclipse.swt.events.DisposeListener
 import org.eclipse.swt.layout.FillLayout
+import org.eclipse.swt.program.Program
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Control
 import org.eclipse.swt.widgets.Shell
@@ -20,6 +20,7 @@ import org.mbassy.listener.Listener
 
 import com.hornmicro.discovera.action.BackAction
 import com.hornmicro.discovera.action.ForwardAction
+import com.hornmicro.discovera.action.RefreshAction
 import com.hornmicro.event.BusEvent
 import com.hornmicro.util.Actions
 import com.hornmicro.util.Bind
@@ -37,12 +38,14 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
     
     Action backAction
     Action forwardAction
+    Action refreshAction
     
     public MainController() {
         super(null)
         
         backAction = new BackAction(this)
         forwardAction = new ForwardAction(this)
+        refreshAction = new RefreshAction(this)
         
         addMenuBar()
         setExceptionHandler(this)
@@ -84,6 +87,7 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
         
         Actions.selection(view.back).connect(backAction)
         Actions.selection(view.forward).connect(forwardAction)
+        Actions.selection(view.refresh).connect(refreshAction)
         
         Bind.from(model, "historyIndex").toWritableValue { sel -> 
             view.back.setEnabled(false)
@@ -114,18 +118,27 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
         treeController.setRoot(nextFile)
     }
     
+    void refresh() {
+        sidebarController.refresh()
+        treeController.setRoot(model.current())
+    }
+    
     @Listener
     void onBusEvent(BusEvent event) {
         switch(event.type) {
             case BusEvent.Type.FILE_SELECTED:
                 File file = (File) event.data
-                treeController.setRoot(file)
-                model.title = file.name
-                model.addHistory(file)
-                sidebarController.setPath(file)
-                
-                statusbarController.model.items = treeController.getVisibleElements().size()
-                statusbarController.model.selected = 0
+                if(file.isDirectory()) {
+                    treeController.setRoot(file)
+                    model.title = file.name
+                    model.addHistory(file)
+                    sidebarController.setPath(file)
+                    
+                    statusbarController.model.items = treeController.getVisibleElements().size()
+                    statusbarController.model.selected = 0
+                } else {
+                    Program.launch(file.absolutePath)
+                }
                 break
             case BusEvent.Type.FILES_SELECTED:
                 statusbarController.model.selected = ((File[]) event.data)?.size() ?: 0
@@ -145,6 +158,7 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
         menuManager.add(goMenu)
         goMenu.add(backAction)
         goMenu.add(forwardAction)
+        goMenu.add(refreshAction)
         /*MenuManager fileMenu = new MenuManager("File")
         MenuManager editMenu = new MenuManager("Edit")
         MenuManager actionsMenu = new MenuManager("Actions")

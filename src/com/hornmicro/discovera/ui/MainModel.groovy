@@ -30,13 +30,17 @@ class MainModel {
         if(historyIndex < history.size() - 1) {
             setHistoryIndex(historyIndex + 1)
         }
-        return history[historyIndex]
+        return current()
     }
 
     File back() {
         if(historyIndex > 0) {
             setHistoryIndex(historyIndex - 1)
         }
+        return current()
+    }
+    
+    File current() {
         return history[historyIndex]
     }
 }
