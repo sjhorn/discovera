@@ -14,6 +14,7 @@ import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.program.Program
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Control
+import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.Shell
 import org.mbassy.MBassador
 import org.mbassy.listener.Listener
@@ -28,6 +29,7 @@ import com.hornmicro.util.Resources
 
 @CompileStatic
 class MainController extends ApplicationWindow implements DisposeListener, Runnable, Window.IExceptionHandler {
+    MenuManager menuManager
     private StatusbarController statusbarController
     private TreeController treeController
     private SidebarController sidebarController
@@ -89,15 +91,15 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
         Actions.selection(view.forward).connect(forwardAction)
         Actions.selection(view.refresh).connect(refreshAction)
         
-        Bind.from(model, "historyIndex").toWritableValue { sel -> 
-            view.back.setEnabled(false)
-            view.forward.setEnabled(false)
+        Bind.from(model, "historyIndex").toWritableValue { sel ->
+            backAction.setEnabled(false)
+            forwardAction.setEnabled(false)
             
             if(model.history.size() > 0 && model.historyIndex > 0) {
-                view.back.setEnabled(true)
+                backAction.setEnabled(true)
             }
             if(model.history.size() > 0 && model.historyIndex < model.history.size() - 1 ) {
-                view.forward.setEnabled(true)
+                forwardAction.setEnabled(true)
             }
         }
         
@@ -152,7 +154,7 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
     }
     
     MenuManager createMenuManager() {
-        MenuManager menuManager = new MenuManager()
+        menuManager = new MenuManager()
         MenuManager goMenu = new MenuManager("Go")
         
         menuManager.add(goMenu)
@@ -180,6 +182,7 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
     
     void widgetDisposed(DisposeEvent de) {
         Resources.dispose()
+        menuManager?.dispose()
         bus?.unsubscribe(this)
     }
 
