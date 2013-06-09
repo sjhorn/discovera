@@ -1,10 +1,9 @@
 package com.hornmicro.util
 
-import groovy.transform.CompileStatic;
+import groovy.transform.CompileStatic
 
 import org.eclipse.swt.SWT
 import org.eclipse.swt.graphics.Image
-import org.eclipse.swt.graphics.ImageData
 import org.eclipse.swt.internal.cocoa.NSAutoreleasePool
 import org.eclipse.swt.internal.cocoa.NSImage
 import org.eclipse.swt.internal.cocoa.NSRect
@@ -13,6 +12,7 @@ import org.eclipse.swt.internal.cocoa.NSString
 import org.eclipse.swt.internal.cocoa.NSWorkspace
 import org.eclipse.swt.internal.cocoa.OS
 import org.eclipse.swt.widgets.Display
+import org.eclipse.swt.widgets.Shell
 
 @CompileStatic
 class CocoaTools {
@@ -118,4 +118,8 @@ class CocoaTools {
             entry?.getValue()?.dispose()
         }
     }
+	
+	static void setRepresentedFilename(Shell shell, File file) {
+		shell.view.window().setRepresentedFilename(NSString.stringWith(file.absolutePath))
+	}
 }

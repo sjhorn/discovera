@@ -30,6 +30,7 @@ class MainView extends Composite {
     ToolItem list
     ToolItem columns
     ToolItem icons
+    ToolItem renameFile
     ToolItem newFolder
     ToolItem delete
     ToolItem refresh
@@ -78,6 +79,10 @@ class MainView extends Composite {
 
         item = new ToolItem(toolbar, SWT.SEPARATOR)
         item.setWidth(SWT.DEFAULT)
+        
+        renameFile = new ToolItem(toolbar, SWT.PUSH)
+        renameFile.text = "Rename"
+        renameFile.image = Resources.getImage("gfx/22gray/wrench.png")
         
         newFolder = new ToolItem(toolbar, SWT.PUSH)
         newFolder.text = "New Folder"

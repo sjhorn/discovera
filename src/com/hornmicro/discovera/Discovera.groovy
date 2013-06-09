@@ -27,7 +27,6 @@ class Discovera {
         display = new Display()
         bus = new MBassador<BusEvent>(BusConfiguration.Default())
         controller = new MainController(bus:bus)
-        
     }
     
     void run() {

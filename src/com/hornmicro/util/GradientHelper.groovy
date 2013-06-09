@@ -13,10 +13,12 @@ class GradientHelper {
     private static Image oldImage = null
 
     static void applyGradientBG(Composite composite, Color from, Color to) {
+		if(composite == null || composite.isDisposed() || from == null || to == null) return
         Rectangle rect = composite.clientArea
         Display display = composite.display
         Image newImage = new Image(display, 1, Math.max(1, rect.height))
         GC gc = new GC(newImage)
+		if(gc == null || gc.isDisposed() || from == null || to == null) return
         gc.with {
             setForeground(from)
             setBackground(to)

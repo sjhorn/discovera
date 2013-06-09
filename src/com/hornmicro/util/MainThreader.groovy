@@ -17,7 +17,7 @@ class MainThreader {
     static Closure closure
     static CountDownLatch latch
     
-    static run(Closure closure) {
+    static run(Closure closure) { 
         MainThreader.closure = closure
         MainThreader.callback = new Callback(MainThreader, "proc", 2)
         long cls = OS.objc_lookUpClass("RunOnMainLoop")

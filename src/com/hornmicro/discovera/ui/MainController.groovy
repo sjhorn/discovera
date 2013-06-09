@@ -5,26 +5,32 @@ import groovy.transform.CompileStatic
 import org.codehaus.groovy.runtime.StackTraceUtils
 import org.eclipse.jface.action.Action
 import org.eclipse.jface.action.MenuManager
+import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.window.ApplicationWindow
 import org.eclipse.jface.window.Window
 import org.eclipse.swt.SWT
 import org.eclipse.swt.events.DisposeEvent
 import org.eclipse.swt.events.DisposeListener
+import org.eclipse.swt.graphics.Point
+import org.eclipse.swt.graphics.Rectangle
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.program.Program
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Control
-import org.eclipse.swt.widgets.Display
+import org.eclipse.swt.widgets.Label
 import org.eclipse.swt.widgets.Shell
+import org.eclipse.swt.widgets.Text
 import org.mbassy.MBassador
 import org.mbassy.listener.Listener
 
 import com.hornmicro.discovera.action.BackAction
 import com.hornmicro.discovera.action.ForwardAction
 import com.hornmicro.discovera.action.RefreshAction
+import com.hornmicro.discovera.action.RenameAction
 import com.hornmicro.event.BusEvent
 import com.hornmicro.util.Actions
 import com.hornmicro.util.Bind
+import com.hornmicro.util.CocoaTools
 import com.hornmicro.util.Resources
 
 @CompileStatic
@@ -41,6 +47,9 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
     Action backAction
     Action forwardAction
     Action refreshAction
+    Action renameAction
+	
+	Callout callout
     
     public MainController() {
         super(null)
@@ -49,6 +58,8 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
         forwardAction = new ForwardAction(this)
         refreshAction = new RefreshAction(this)
         
+		renameAction = new RenameAction(this)
+		
         addMenuBar()
         setExceptionHandler(this)
     }
@@ -80,6 +91,10 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
         wireView()
         
         view.layout(false)
+		
+		
+		callout = new Callout(view.shell, Callout.Pointer.TOP)
+		
         return view
     }
     
@@ -90,6 +105,9 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
         Actions.selection(view.back).connect(backAction)
         Actions.selection(view.forward).connect(forwardAction)
         Actions.selection(view.refresh).connect(refreshAction)
+		
+		Actions.selection(view.renameFile).connect(renameAction)
+		
         
         Bind.from(model, "historyIndex").toWritableValue { sel ->
             backAction.setEnabled(false)
@@ -110,20 +128,51 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
     
     void goBack() {
         File lastFile = model.back()
-        sidebarController.setPath(lastFile)
-        treeController.setRoot(lastFile)
+		setCurrentFolder(lastFile)
+        
     }
     
     void goForward() {
         File nextFile = model.forward()
-        sidebarController.setPath(nextFile)
-        treeController.setRoot(nextFile)
+		setCurrentFolder(nextFile)
     }
     
     void refresh() {
         sidebarController.refresh()
         treeController.setRoot(model.current())
     }
+	
+	void setCurrentFolder(File file) {
+		sidebarController.setPath(file)
+		treeController.setRoot(file)
+		view.display.asyncExec { CocoaTools.setRepresentedFilename(view.shell, file) }
+		model.title = file.name
+		
+		statusbarController.model.items = treeController.getVisibleElements().size()
+		statusbarController.model.selected = 0
+	}
+	
+	boolean calloutOpened = false
+	void rename() {
+		Rectangle renameBounds = view.renameFile.bounds
+		Point spot = view.toDisplay( renameBounds.x, renameBounds.y )
+		spot.x += 20
+		spot.y -= 16
+
+		CalloutDialog renameDialog = new CalloutDialog(view.shell)
+		renameDialog.location = spot
+		renameDialog.pointer = renameDialog.Pointer.TOP
+		renameDialog.createContents = { Composite container ->
+			Label label = new Label(container, SWT.NONE)
+			label.text = "Rename to:"
+			Text what = new Text(container, SWT.BORDER)
+			what.text = "Really cool long name.txt"
+			GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(what)
+		}
+		println renameDialog.open()
+		
+	}
+	
     
     @Listener
     void onBusEvent(BusEvent event) {
@@ -131,13 +180,8 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
             case BusEvent.Type.FILE_SELECTED:
                 File file = (File) event.data
                 if(file.isDirectory()) {
-                    treeController.setRoot(file)
-                    model.title = file.name
+					setCurrentFolder(file)
                     model.addHistory(file)
-                    sidebarController.setPath(file)
-                    
-                    statusbarController.model.items = treeController.getVisibleElements().size()
-                    statusbarController.model.selected = 0
                 } else {
                     Program.launch(file.absolutePath)
                 }
@@ -155,8 +199,14 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
     
     MenuManager createMenuManager() {
         menuManager = new MenuManager()
+		MenuManager fileMenu = new MenuManager("File")
+		menuManager.add(fileMenu)
+		fileMenu.add(renameAction)
+		
+		MenuManager editMenu = new MenuManager("Edit")
+		menuManager.add(editMenu)
+		
         MenuManager goMenu = new MenuManager("Go")
-        
         menuManager.add(goMenu)
         goMenu.add(backAction)
         goMenu.add(forwardAction)

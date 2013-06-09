@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="lib/swt-3.101.0.sourcelist-cocoa_macosx-x86_64.jar"/>
 	<classpathentry kind="lib" path="lib/asm-4.0.jar"/>
 	<classpathentry kind="lib" path="lib/groovy-2.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/jface/com.ibm.icu_4.4.2.v20110823.jar"/>
 	<classpathentry kind="lib" path="lib/jface/org.eclipse.core.commands_3.6.2.v20130123-162658.jar"/>
 	<classpathentry kind="lib" path="lib/jface/org.eclipse.equinox.common_3.6.100.v20120522-1841.jar"/>
-	<classpathentry kind="lib" path="lib/jface/org.eclipse.jface_3.8.102.v20130123-162658.jar"/>
+	<classpathentry kind="lib" path="lib/jface/org.eclipse.jface_3.8.102.v20130123-162658.jar" sourcepath="/Users/shorn/dev/sources/org.eclipse.jface.source_3.8.0.v20120521-2329.jar"/>
 	<classpathentry kind="lib" path="lib/jface/org.eclipse.jface.databinding_1.6.0.v20120912-132807.jar"/>
 	<classpathentry kind="lib" path="lib/jface/org.eclipse.jface.text_3.8.2.v20121126-164145.jar"/>
 	<classpathentry kind="lib" path="lib/jface/org.eclipse.osgi_3.8.2.v20130124-134944.jar"/>
@@ -16,6 +15,11 @@
 	<classpathentry kind="lib" path="lib/jface/org.eclipse.core.databinding.observable_1.4.1.v20120521-2329.jar"/>
 	<classpathentry kind="lib" path="lib/jface/org.eclipse.core.databinding.property_1.4.100.v20120523-1955.jar"/>
 	<classpathentry kind="lib" path="lib/eventbus/mbassador-1.0.6.RC.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/Java SE 7 (MacOS X Default)"/>
+	<classpathentry kind="lib" path="/Users/shorn/dev/swt/eclipse.platform.swt.binaries/bundles/org.eclipse.swt.cocoa.macosx.x86_64/swt.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/shorn/dev/swt/eclipse.platform.swt.binaries/bundles/org.eclipse.swt.cocoa.macosx.x86_64"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

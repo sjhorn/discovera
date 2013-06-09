@@ -4,7 +4,9 @@ import groovy.transform.CompileStatic
 
 import java.text.DecimalFormat
 
+import org.eclipse.jface.viewers.CellEditor
 import org.eclipse.jface.viewers.DoubleClickEvent
+import org.eclipse.jface.viewers.ICellModifier
 import org.eclipse.jface.viewers.IDoubleClickListener
 import org.eclipse.jface.viewers.ILabelProviderListener
 import org.eclipse.jface.viewers.IStructuredSelection
@@ -14,6 +16,7 @@ import org.eclipse.jface.viewers.ITreeViewerListener
 import org.eclipse.jface.viewers.TreeExpansionEvent
 import org.eclipse.jface.viewers.TreeViewer
 import org.eclipse.jface.viewers.Viewer
+import org.eclipse.swt.SWT
 import org.eclipse.swt.events.SelectionEvent
 import org.eclipse.swt.events.SelectionListener
 import org.eclipse.swt.graphics.Image
@@ -21,12 +24,16 @@ import org.eclipse.swt.widgets.Tree
 import org.eclipse.swt.widgets.TreeItem
 
 import com.hornmicro.event.BusEvent
+import com.hornmicro.jface.viewers.TextAndDialogCellEditor;
+import com.hornmicro.jface.viewers.TreeEditorViewer
 import com.hornmicro.util.CocoaTools
 import com.hornmicro.util.WidgetTools
 
 @CompileStatic
-class TreeController extends Controller implements SelectionListener, ITreeContentProvider, ITableLabelProvider, ITreeViewerListener, IDoubleClickListener  {
+class TreeController extends Controller implements SelectionListener, ITreeContentProvider, 
+    ITableLabelProvider, ITreeViewerListener, IDoubleClickListener  {
     static final String FILE = "file"
+    static final String[] TITLES = [ "Name", "Date Modified", "Size" ]
     TreeView view
     TreeViewer viewer
     File[] roots
@@ -37,10 +44,9 @@ class TreeController extends Controller implements SelectionListener, ITreeConte
         if(view) {
             view.createContents()
             Tree tree = view.tree
-            viewer = new TreeViewer(tree)
+            viewer = new TreeEditorViewer(tree)
             viewer.setContentProvider(this)
             viewer.setLabelProvider(this)
-            
             viewer.addTreeListener(this) 
             tree.addSelectionListener(this)
             viewer.addDoubleClickListener(this)
@@ -173,4 +179,5 @@ class TreeController extends Controller implements SelectionListener, ITreeConte
             bus.publishAsync(new BusEvent(type: BusEvent.Type.FILE_SELECTED, data: file, src: this))
         }
     }
+
 }
