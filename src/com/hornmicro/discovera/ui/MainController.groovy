@@ -139,7 +139,7 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
     
     void refresh() {
         sidebarController.refresh()
-        treeController.setRoot(model.current())
+        treeController.setRoot(model.currentHistory())
     }
 	
 	void setCurrentFolder(File file) {
