@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/asm-4.0.jar"/>
 	<classpathentry kind="lib" path="lib/groovy-2.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/jface/com.ibm.icu_4.4.2.v20110823.jar"/>
@@ -15,11 +16,10 @@
 	<classpathentry kind="lib" path="lib/jface/org.eclipse.core.databinding.observable_1.4.1.v20120521-2329.jar"/>
 	<classpathentry kind="lib" path="lib/jface/org.eclipse.core.databinding.property_1.4.100.v20120523-1955.jar"/>
 	<classpathentry kind="lib" path="lib/eventbus/mbassador-1.0.6.RC.jar"/>
-	<classpathentry kind="lib" path="/Users/shorn/dev/swt/eclipse.platform.swt.binaries/bundles/org.eclipse.swt.cocoa.macosx.x86_64/swt.jar">
+	<classpathentry kind="lib" path="lib/swt.jar">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/shorn/dev/swt/eclipse.platform.swt.binaries/bundles/org.eclipse.swt.cocoa.macosx.x86_64"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="org.eclipse.swt.cocoa.macosx.x86_64"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

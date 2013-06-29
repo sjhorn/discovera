@@ -8,6 +8,7 @@ import org.eclipse.swt.events.ShellListener
 import org.eclipse.swt.graphics.Color
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.widgets.Composite
+import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.Event
 import org.eclipse.swt.widgets.Label
 import org.eclipse.swt.widgets.Listener
@@ -41,16 +42,20 @@ class StatusbarView extends Composite implements Listener, ShellListener {
 
     void handleEvent(Event event) {
         if(event.type == SWT.Resize) {
-            GradientHelper.applyGradientBG(this, from, to)
+			shellActivated(null)
         }
     }
     
     void shellActivated(ShellEvent se) {
-        GradientHelper.applyGradientBG(this, from, to)
+		display.asyncExec {
+			GradientHelper.applyGradientBG(this, from, to)
+		}
     }
 
     public void shellDeactivated(ShellEvent se) {
-        GradientHelper.applyGradientBG(this, deactive, deactive)
+		display.asyncExec {
+			GradientHelper.applyGradientBG(this, deactive, deactive)
+		}
     }
 
     public void shellDeiconified(ShellEvent se) {

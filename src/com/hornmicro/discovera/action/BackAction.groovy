@@ -3,7 +3,7 @@ package com.hornmicro.discovera.action;
 import org.eclipse.jface.action.Action;
 import org.eclipse.swt.SWT;
 
-import com.hornmicro.discovera.ui.MainController;
+import com.hornmicro.discovera.ui.MainController
 
 class BackAction extends Action {
     MainController controller

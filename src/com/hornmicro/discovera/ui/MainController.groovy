@@ -2,10 +2,11 @@ package com.hornmicro.discovera.ui
 
 import groovy.transform.CompileStatic
 
+import java.nio.file.Path
+
 import org.codehaus.groovy.runtime.StackTraceUtils
 import org.eclipse.jface.action.Action
 import org.eclipse.jface.action.MenuManager
-import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.window.ApplicationWindow
 import org.eclipse.jface.window.Window
 import org.eclipse.swt.SWT
@@ -17,16 +18,18 @@ import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.program.Program
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Control
-import org.eclipse.swt.widgets.Label
+import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.Shell
-import org.eclipse.swt.widgets.Text
 import org.mbassy.MBassador
 import org.mbassy.listener.Listener
 
 import com.hornmicro.discovera.action.BackAction
 import com.hornmicro.discovera.action.ForwardAction
+import com.hornmicro.discovera.action.RedoAction
 import com.hornmicro.discovera.action.RefreshAction
 import com.hornmicro.discovera.action.RenameAction
+import com.hornmicro.discovera.action.UndoAction
+import com.hornmicro.discovera.model.MainModel
 import com.hornmicro.event.BusEvent
 import com.hornmicro.util.Actions
 import com.hornmicro.util.Bind
@@ -48,8 +51,9 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
     Action forwardAction
     Action refreshAction
     Action renameAction
+    Action undoAction
+    Action redoAction
 	
-	Callout callout
     
     public MainController() {
         super(null)
@@ -57,6 +61,9 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
         backAction = new BackAction(this)
         forwardAction = new ForwardAction(this)
         refreshAction = new RefreshAction(this)
+		
+		undoAction = new UndoAction(this)
+        redoAction = new RedoAction(this)
         
 		renameAction = new RenameAction(this)
 		
@@ -92,9 +99,6 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
         
         view.layout(false)
 		
-		
-		callout = new Callout(view.shell, Callout.Pointer.TOP)
-		
         return view
     }
     
@@ -108,7 +112,9 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
 		
 		Actions.selection(view.renameFile).connect(renameAction)
 		
-        
+		// Back/Forward Actions
+		backAction.setEnabled(false)
+		forwardAction.setEnabled(false)
         Bind.from(model, "historyIndex").toWritableValue { sel ->
             backAction.setEnabled(false)
             forwardAction.setEnabled(false)
@@ -120,6 +126,21 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
                 forwardAction.setEnabled(true)
             }
         }
+		
+		// Undo/Redo Actions
+		undoAction.setEnabled(false)
+		redoAction.setEnabled(false)
+		Bind.from(model, "undoIndex").toWritableValue { sel ->
+			undoAction.setEnabled(false)
+			redoAction.setEnabled(false)
+			
+			if(model.undoHistory.size() > 0 && model.undoIndex >= 0) {
+				undoAction.setEnabled(true)
+			}
+			if(model.undoHistory.size() > 0 && model.undoIndex < model.undoHistory.size() - 1 ) {
+				redoAction.setEnabled(true)
+			}
+		}
         
         sidebarController.wireView()
         treeController.wireView()
@@ -149,27 +170,31 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
 		model.title = file.name
 		
 		statusbarController.model.items = treeController.getVisibleElements().size()
-		statusbarController.model.selected = 0
+		statusbarController.model.selectedCount = 0
 	}
 	
 	boolean calloutOpened = false
 	void rename() {
-		Rectangle renameBounds = view.renameFile.bounds
-		Point spot = view.toDisplay( renameBounds.x, renameBounds.y )
-		spot.x += 20
-		spot.y -= 16
-
-		CalloutDialog renameDialog = new CalloutDialog(view.shell)
-		renameDialog.location = spot
-		renameDialog.pointer = renameDialog.Pointer.TOP
-		renameDialog.createContents = { Composite container ->
-			Label label = new Label(container, SWT.NONE)
-			label.text = "Rename to:"
-			Text what = new Text(container, SWT.BORDER)
-			what.text = "Really cool long name.txt"
-			GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(what)
+		File file =  model.selectedFiles.first().toFile()
+		if(file) {
+			treeController.viewer.reveal(file)
+			Rectangle itemRect = treeController.getElementBounds(file)
+			Point spot
+			if(itemRect) {
+				int x = itemRect.x + 20
+				int y = itemRect.y + itemRect.height + 10
+				spot = treeController.view.tree.toDisplay(x, y)
+			} else {
+				Rectangle renameBounds = view.renameFile.bounds
+				spot = view.toolbar.toDisplay(renameBounds.x, renameBounds.y)
+				spot.x += renameBounds.width / 2 as int
+				spot.y += renameBounds.height
+			}
+			
+			RenameCallout callout = new RenameCallout(view.shell, spot, model)
+			callout.open()
 		}
-		println renameDialog.open()
+		
 		
 	}
 	
@@ -187,11 +212,19 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
                 }
                 break
             case BusEvent.Type.FILES_SELECTED:
-                statusbarController.model.selected = ((File[]) event.data)?.size() ?: 0
+				model.selectedFiles = (event.data?.collect { ( (File) it).toPath() } ?: []) as List<Path>
+                statusbarController.model.selectedCount = model.selectedFiles.size()
                 break
+		    case BusEvent.Type.FILES_CHANGED:
+				Map<File, File> files = (Map<File, File>) event.data
+				Display.default.asyncExec {
+					treeController.update(files)
+				}
+				break
             case BusEvent.Type.FILE_EXPANDED:
             case BusEvent.Type.FILE_COLLAPSED:
                 statusbarController.model.items = treeController.getVisibleElements().size()
+				break
             default:
                 break
         }
@@ -205,6 +238,8 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
 		
 		MenuManager editMenu = new MenuManager("Edit")
 		menuManager.add(editMenu)
+		editMenu.add(undoAction)
+		editMenu.add(redoAction)
 		
         MenuManager goMenu = new MenuManager("Go")
         menuManager.add(goMenu)

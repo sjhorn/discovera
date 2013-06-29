@@ -1,6 +1,5 @@
 package com.hornmicro.util
 
-
 import groovy.transform.CompileStatic
 
 import java.util.Map.Entry

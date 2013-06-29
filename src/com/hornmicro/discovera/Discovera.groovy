@@ -17,7 +17,7 @@ import com.hornmicro.util.MainThreader
 
 @CompileStatic
 class Discovera {
-    MBassador<BusEvent> bus
+    static MBassador<BusEvent> bus
     
     Display display
     MainController controller

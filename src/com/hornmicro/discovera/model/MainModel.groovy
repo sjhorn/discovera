@@ -1,36 +1,13 @@
-package com.hornmicro.discovera.ui
+package com.hornmicro.discovera.model
 
 import groovy.beans.Bindable
-import java.nio.file.CopyOption
-import java.nio.file.Files
+
 import java.nio.file.Path
+
+import com.hornmicro.discovera.action.UndoableAction
 
 @Bindable
 class MainModel {
-	static class UndoableAction {
-		enum Type { RENAME, DELETE, MOVE, NEWFOLDER } 
-		Type type
-		Map<Path, Path> files = []
-		
-		void undo() {
-			switch(type) {
-				case Type.RENAME:
-				case Type.DELETE:
-				case Type.MOVE:
-					files.each { Path newFile, Path origFile ->
-						Files.move(newFile, origFile, CopyOption.ATOMIC_MOVE)
-					}
-					break
-				case Type.NEWFOLDER:
-					files.each { Path newFile, Path empty ->
-						Files.delete(newFile)
-					}
-					break
-				default:
-					throw new Exception("Invalid undo action")
-			}
-		}
-	}
     static final int HISTORY_SIZE = 1000
     
     String title
@@ -38,8 +15,10 @@ class MainModel {
     Integer historyIndex = 0
     LinkedList<File> history = new LinkedList<File>()
 	
-	Integer undoIndex = 0
+	Integer undoIndex = -1
 	LinkedList<UndoableAction> undoHistory = new LinkedList<UndoableAction>()
+	
+	List<Path> selectedFiles = []
     
 	//
 	// Navigation History
@@ -85,7 +64,6 @@ class MainModel {
 	// Undo History
 	//
 	void addUndoableAction(UndoableAction ua) {
-		if(!undoIndex) undoIndex = 0
 		if(undoIndex && undoIndex < undoHistory.size()) {
 			
 			// remove the tail to write the new undo history
@@ -102,18 +80,18 @@ class MainModel {
 		setUndoIndex(undoHistory.size() - 1)
 	}
 	
-	UndoableAction redo() {
-		if(undoIndex < history.size() - 1) {
-			setHistoryIndex(undoIndex + 1)
+	void redo() {
+		if(undoIndex < undoHistory.size() - 1) {
+			setUndoIndex(undoIndex + 1)
+			currentUndo().redo()
 		}
-		return currentUndo()
 	}
 
-	UndoableAction undo() {
-		if(undoIndex > 0) {
-			setHistoryIndex(undoIndex - 1)
+	void undo() {
+		if(undoIndex >= 0) {
+			currentUndo().undo()
+			setUndoIndex(undoIndex - 1)
 		}
-		return currentUndo()
 	}
 	
 	UndoableAction currentUndo() {

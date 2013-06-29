@@ -1,12 +1,10 @@
-package com.hornmicro.discovera.ui
+ package com.hornmicro.discovera.ui
 
 import groovy.transform.CompileStatic
 
 import java.text.DecimalFormat
 
-import org.eclipse.jface.viewers.CellEditor
 import org.eclipse.jface.viewers.DoubleClickEvent
-import org.eclipse.jface.viewers.ICellModifier
 import org.eclipse.jface.viewers.IDoubleClickListener
 import org.eclipse.jface.viewers.ILabelProviderListener
 import org.eclipse.jface.viewers.IStructuredSelection
@@ -16,15 +14,14 @@ import org.eclipse.jface.viewers.ITreeViewerListener
 import org.eclipse.jface.viewers.TreeExpansionEvent
 import org.eclipse.jface.viewers.TreeViewer
 import org.eclipse.jface.viewers.Viewer
-import org.eclipse.swt.SWT
 import org.eclipse.swt.events.SelectionEvent
 import org.eclipse.swt.events.SelectionListener
 import org.eclipse.swt.graphics.Image
+import org.eclipse.swt.graphics.Rectangle
 import org.eclipse.swt.widgets.Tree
 import org.eclipse.swt.widgets.TreeItem
 
 import com.hornmicro.event.BusEvent
-import com.hornmicro.jface.viewers.TextAndDialogCellEditor;
 import com.hornmicro.jface.viewers.TreeEditorViewer
 import com.hornmicro.util.CocoaTools
 import com.hornmicro.util.WidgetTools
@@ -70,13 +67,33 @@ class TreeController extends Controller implements SelectionListener, ITreeConte
         }
     }
     
-    List<TreeItem> getVisibleElements() {
-        List<TreeItem> items
+    List<Object> getVisibleElements() {
+        List<Object> items
         view.display.syncExec {
             items = WidgetTools.getVisibleElements(view.tree)
         }
         return items
-    } 
+    }
+	
+	void update(Map<File, File> files) {
+		for(TreeItem item : WidgetTools.getVisibleTreeItems(view.tree)) {
+			File newFile = files[ (File) item.data]
+			if(files[item.data]) {
+				item.setData(newFile)
+				viewer.update(newFile, null)
+			}
+		}
+		widgetSelected(null)
+	}
+	
+	Rectangle getElementBounds(File file) {
+		for(TreeItem item : WidgetTools.getVisibleTreeItems(view.tree)) {
+			if(file == item.data) {
+				return item.getBounds()
+			}
+		}
+		return null
+	}
     
     void widgetSelected(SelectionEvent se) {
         File[] files = (File[]) ((IStructuredSelection) viewer.getSelection()).toArray()
@@ -120,7 +137,7 @@ class TreeController extends Controller implements SelectionListener, ITreeConte
     void removeListener(ILabelProviderListener arg0) { }
 
     boolean isLabelProperty(Object arg0, String arg1) {
-        return false
+        return true
     }
 
     Object[] getChildren(Object file) {

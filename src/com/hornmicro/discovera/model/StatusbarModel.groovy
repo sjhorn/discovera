@@ -1,9 +1,9 @@
-package com.hornmicro.discovera.ui
+package com.hornmicro.discovera.model
 
 import groovy.beans.Bindable
 
 @Bindable
 class StatusbarModel {
      Integer items
-     Integer selected
+     Integer selectedCount
 }

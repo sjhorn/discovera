@@ -27,7 +27,7 @@ public class TextAndDialogCellEditor extends DialogCellEditor {
 
 
     public void setDialogMessage(String dialogMessage) {
-        this.dialogMessage = dialogMessage;
+        this.dialogMessage = dialogMessage
     }
 
 

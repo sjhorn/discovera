@@ -1,7 +1,7 @@
-package com.hornmicro.discovera.ui
+package com.hornmicro.ui
 
-import org.eclipse.jface.layout.GridDataFactory
-import org.eclipse.jface.layout.GridLayoutFactory
+import groovy.transform.CompileStatic
+
 import org.eclipse.swt.SWT
 import org.eclipse.swt.events.DisposeEvent
 import org.eclipse.swt.events.DisposeListener
@@ -12,26 +12,33 @@ import org.eclipse.swt.events.ShellEvent
 import org.eclipse.swt.graphics.Color
 import org.eclipse.swt.graphics.GC
 import org.eclipse.swt.graphics.Path
+import org.eclipse.swt.graphics.Point
 import org.eclipse.swt.graphics.Rectangle
 import org.eclipse.swt.internal.cocoa.CGRect
 import org.eclipse.swt.internal.cocoa.CGSize
 import org.eclipse.swt.internal.cocoa.NSColor
 import org.eclipse.swt.internal.cocoa.NSGraphicsContext
+import org.eclipse.swt.internal.cocoa.NSWindow
 import org.eclipse.swt.internal.cocoa.OS
+import org.eclipse.swt.layout.GridData
+import org.eclipse.swt.layout.GridLayout
+import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Dialog
 import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.Shell
+import org.eclipse.swt.widgets.Text
 
 import com.hornmicro.util.MainThreader
 
+@CompileStatic
 class CalloutDialog extends Dialog implements DisposeListener, PaintListener {
-	static class Point {
+	static class FloatPoint {
 		float x
 		float y
-		public Point(float x, float y) { this.x = x; this.y = y; }
+		public FloatPoint(float x, float y) { this.x = x; this.y = y; }
 	}
-	enum Pointer { LEFT, TOP, RIGHT, BOTTOM }
+	public enum Pointer { LEFT, TOP, RIGHT, BOTTOM }
 	Pointer pointer = Pointer.BOTTOM
 	int radius = 10
 	int triangle = 12
@@ -40,7 +47,7 @@ class CalloutDialog extends Dialog implements DisposeListener, PaintListener {
 	Color lineColor
 	Path path
 	Shell shell
-	org.eclipse.swt.graphics.Point location
+	Point pointTo
 	Closure createContents
 	
 	CalloutDialog (Shell parent, int style) {
@@ -65,51 +72,65 @@ class CalloutDialog extends Dialog implements DisposeListener, PaintListener {
 	}
 	
 	Object open () {
+			Long start = System.currentTimeMillis()
 			Shell parent = getParent()
 			
 			shell = new Shell(parent, SWT.NO_TRIM | SWT.TOOL | SWT.NO_BACKGROUND /*| SWT.APPLICATION_MODAL*/)
-			shell.window.setOpaque(false)
-			shell.window.setBackgroundColor(NSColor.clearColor())
-			shell.window.display()
+			
+			NSWindow window = shell.window
+			window.setOpaque(false)
+			window.setBackgroundColor(NSColor.clearColor())
+			window.display()
 			
 			shell.text = getText()
 			
-			GridLayoutFactory lf = GridLayoutFactory.fillDefaults().margins(19, 19)
+			GridLayout lf = new GridLayout()
+			lf.marginWidth = lf.marginHeight = 19 
+			lf.marginLeft = lf.marginTop = lf.marginRight = lf.marginBottom = 0
+			
 			switch(pointer) {
 				case Pointer.LEFT:
-					lf.extendedMargins(triangle, 0, 0, 0)
+					lf.marginLeft = triangle
 					break
 				case Pointer.RIGHT:
-					lf.extendedMargins(0, triangle, 0, 0)
+					lf.marginRight = triangle
 					break
 				case Pointer.TOP:
-					lf.extendedMargins(0, 0, triangle, 0)
+					lf.marginTop = triangle
 					break
 				default:
-					lf.extendedMargins(0, 0, 0, triangle + 5)
+					lf.marginBottom = triangle + 5
 					break
 			}
-			shell.setLayout(lf.create())
+			
+			shell.setLayout(lf)
 			shell.addPaintListener(this)
 			shell.addDisposeListener(this)
 			
 			Composite container = new Composite(shell, SWT.NO_BACKGROUND | SWT.INHERIT_DEFAULT)
-			GridLayoutFactory.fillDefaults().numColumns(2).extendedMargins(0, 0, 0, 0).margins(5, 3).applyTo(container)
-			GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(container)
+			GridLayout gl = new GridLayout()
+			gl.numColumns = 2
+			gl.marginWidth = gl.marginHeight = gl.marginBottom = 5
+			gl.marginLeft = gl.marginTop = gl.marginRight = 0
+			container.setLayout(gl)
+			
+			GridData gd = new GridData()
+			gd.grabExcessHorizontalSpace = gd.grabExcessVerticalSpace = true
+			gd.verticalAlignment = gd.horizontalAlignment = SWT.FILL
+			container.setLayoutData(gd)
 			
 			createContents(container)
 			shell.pack()
-			shell.window.setHasShadow(false)
+			window.setHasShadow(false)
 			
-			if(location) {
-				shell.setLocation( (location.x - shell.getSize().x / 2) as int, location.y)
+			if(pointTo) {
+				shell.setLocation((pointTo.x - shell.getSize().x / 2) as int, pointTo.y - 19)
 			}
 			shell.open()
-			
+			final CalloutDialog outer = this 
 			shell.addShellListener(new ShellAdapter() {
 				public void shellDeactivated(ShellEvent e) {
-					//callout.shell.setVisible(false)
-					shell.dispose()
+					outer.deactivated()
 				}
 			})
 			
@@ -119,8 +140,12 @@ class CalloutDialog extends Dialog implements DisposeListener, PaintListener {
 //					display.sleep()
 //				}
 //			}
-			
 			return "woot"
+	}
+	
+	void deactivated() {
+		//shell.setVisible(false)
+		shell.dispose()
 	}
 	
 	void widgetDisposed(DisposeEvent e) {
@@ -186,49 +211,49 @@ class CalloutDialog extends Dialog implements DisposeListener, PaintListener {
 		//innerPath.dispose()
 		
 		
-		gc.setForeground(shell.foregroundColor)
-		gc.setBackground(shell.backgroundColor)
+		gc.setForeground(shell.foreground)
+		gc.setBackground(shell.background)
 	}
 	
 	Path createPath(Display display, Rectangle rect, int triangle, int diameter) {
 		Path path = new Path(display)
-		int radius = diameter / 2
+		int radius = diameter / 2 as int
 		int topoffset = 0
 		int rightoffset = 0
 		int bottomoffset = 0
 		int leftoffset = 0
-		Point[] trianglePoints
+		FloatPoint[] trianglePoints
 		
 		switch(pointer) {
 			case Pointer.LEFT:
 				trianglePoints = [
-					new Point(rect.x + triangle, rect.y + (rect.height / 2) + triangle),
-					new Point(rect.x, rect.y + (rect.height / 2)),
-					new Point(rect.x + triangle, rect.y + (rect.height / 2) - triangle)
+					new FloatPoint(rect.x + triangle, rect.y + (rect.height / 2) + triangle),
+					new FloatPoint(rect.x, rect.y + (rect.height / 2)),
+					new FloatPoint(rect.x + triangle, rect.y + (rect.height / 2) - triangle)
 				]
 				leftoffset = triangle
 				break
 			case Pointer.TOP:
 				trianglePoints = [
-					new Point(rect.x + (rect.width / 2) - triangle, rect.y + triangle),
-					new Point(rect.x + (rect.width / 2), rect.y),
-					new Point(rect.x + (rect.width / 2) + triangle, rect.y + triangle)
+					new FloatPoint(rect.x + (rect.width / 2) - triangle, rect.y + triangle),
+					new FloatPoint(rect.x + (rect.width / 2), rect.y),
+					new FloatPoint(rect.x + (rect.width / 2) + triangle, rect.y + triangle)
 				]
 				topoffset = triangle
 				break
 			case Pointer.RIGHT:
 				trianglePoints = [
-					new Point(rect.x + rect.width - triangle, rect.y + (rect.height / 2) - triangle),
-					new Point(rect.x + rect.width, rect.y + (rect.height / 2)),
-					new Point(rect.x + rect.width - triangle, rect.y + (rect.height / 2) + triangle)
+					new FloatPoint(rect.x + rect.width - triangle, rect.y + (rect.height / 2) - triangle),
+					new FloatPoint(rect.x + rect.width, rect.y + (rect.height / 2)),
+					new FloatPoint(rect.x + rect.width - triangle, rect.y + (rect.height / 2) + triangle)
 				]
 				rightoffset = -triangle
 				break
 			case Pointer.BOTTOM:
 				trianglePoints = [
-					new Point(rect.x + radius + (rect.width / 2) + triangle, rect.y + rect.height - triangle),
-					new Point(rect.x + radius + (rect.width / 2), rect.y + rect.height),
-					new Point(rect.x + radius + (rect.width / 2) - triangle, rect.y + rect.height - triangle)
+					new FloatPoint(rect.x + radius + (rect.width / 2) + triangle, rect.y + rect.height - triangle),
+					new FloatPoint(rect.x + radius + (rect.width / 2), rect.y + rect.height),
+					new FloatPoint(rect.x + radius + (rect.width / 2) - triangle, rect.y + rect.height - triangle)
 				]
 				bottomoffset = -triangle
 				break
@@ -237,28 +262,28 @@ class CalloutDialog extends Dialog implements DisposeListener, PaintListener {
 		// Top
 		path.moveTo(rect.x + leftoffset + radius, rect.y + topoffset)
 		if(pointer == Pointer.TOP) {
-			for(Point p: trianglePoints) { path.lineTo(p.x, p.y) }
+			for(FloatPoint p: trianglePoints) { path.lineTo(p.x, p.y) }
 		}
 		path.lineTo(rect.x + rightoffset + rect.width - radius, rect.y + topoffset)
 		path.addArc(rect.x + rightoffset + rect.width - diameter, rect.y + topoffset, diameter, diameter, 90, -90)
 		
 		// Right
 		if(pointer == Pointer.RIGHT) {
-			for(Point p: trianglePoints) { path.lineTo(p.x, p.y) }
+			for(FloatPoint p: trianglePoints) { path.lineTo(p.x, p.y) }
 		}
 		path.lineTo(rect.x + rect.width + rightoffset, rect.y + rect.height - radius + bottomoffset)
 		path.addArc(rect.x + rect.width - diameter + rightoffset, rect.y+rect.height - diameter + bottomoffset, diameter, diameter, 0, -90)
 		
 		// Bottom
 		if(pointer == Pointer.BOTTOM) {
-			for(Point p: trianglePoints) { path.lineTo(p.x, p.y) }
+			for(FloatPoint p: trianglePoints) { path.lineTo(p.x, p.y) }
 		}
 		path.lineTo(rect.x + leftoffset + radius, rect.y + rect.height + bottomoffset)
 		path.addArc(rect.x + leftoffset, rect.y + rect.height - diameter + bottomoffset, diameter, diameter, 270, -90)
 		
 		// Left
 		if(pointer == Pointer.LEFT) {
-			for(Point p: trianglePoints) { path.lineTo(p.x, p.y) }
+			for(FloatPoint p: trianglePoints) { path.lineTo(p.x, p.y) }
 		}
 		path.lineTo(rect.x + leftoffset, rect.y + radius + topoffset)
 		path.addArc(rect.x + leftoffset, rect.y + topoffset, diameter, diameter, 180, -90)
@@ -266,12 +291,22 @@ class CalloutDialog extends Dialog implements DisposeListener, PaintListener {
 		return path
 	}
 	
-	static main(args) {
+	static void main(args) {
 		MainThreader.run {
 			Display display = new Display()
 			Shell shell = new Shell(display)
 			CalloutDialog cd = new CalloutDialog(shell)
+			cd.createContents = { Composite container ->
+				Text text = new Text(container, SWT.BORDER)
+				text.text = "Something a bit longer"
+				Button button = new Button(container, SWT.PUSH)
+				button.text = "GO"
+			}
 			cd.open()
+			while (!shell.isDisposed()) {
+				if (!display.readAndDispatch())
+					display.sleep()
+			}
 			
 			display.dispose()
 		}

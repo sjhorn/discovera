@@ -7,7 +7,8 @@ class BusEvent {
         FILES_SELECTED,
         FILE_OPEN,
         FILE_EXPANDED,
-        FILE_COLLAPSED 
+        FILE_COLLAPSED, 
+		FILES_CHANGED
     }
     Type type = Type.SELECTION
     Object src = null
