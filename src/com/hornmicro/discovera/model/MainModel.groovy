@@ -64,7 +64,8 @@ class MainModel {
 	// Undo History
 	//
 	void addUndoableAction(UndoableAction ua) {
-		if(undoIndex && undoIndex < undoHistory.size()) {
+//		println "Before: ${undoHistory}"
+		if(undoHistory.size() && undoIndex < undoHistory.size() - 1) {
 			
 			// remove the tail to write the new undo history
 			for(int idx = undoHistory.size() - 1; idx > undoIndex; idx--) {
@@ -78,6 +79,7 @@ class MainModel {
 			undoHistory.remove(0)
 		}
 		setUndoIndex(undoHistory.size() - 1)
+//		println "After: ${undoHistory}"
 	}
 	
 	void redo() {

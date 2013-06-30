@@ -66,4 +66,8 @@ class UndoableAction implements Runnable {
 	void notifyChange(Map<File, File> files) {
 		Discovera.bus.publishAsync(new BusEvent(type: BusEvent.Type.FILES_CHANGED, data: files, src: this))
 	}
+	
+	String toString() {
+		return "\n${type.name()} - ${files}"
+	}
 }
