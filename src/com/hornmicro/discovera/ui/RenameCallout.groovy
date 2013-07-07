@@ -44,7 +44,9 @@ class RenameCallout extends CalloutDialog implements TraverseListener {
 		Label label = new Label(container, SWT.NONE)
 		label.text = "Rename to:"
 		filename = new Text(container, SWT.BORDER)
-		filename.text = from.getFileName()
+		String fileName = from.getFileName().toString()
+		filename.text = fileName
+		filename.setSelection(0, fileName.split('\\.')[0].size())
 		filename.addTraverseListener(this)
 		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(filename)
 	}
