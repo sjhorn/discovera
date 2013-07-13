@@ -2,6 +2,9 @@ package com.hornmicro.util
 
 import groovy.transform.CompileStatic
 
+import javax.script.ScriptEngine
+import javax.script.ScriptEngineManager
+
 import org.eclipse.swt.SWT
 import org.eclipse.swt.graphics.Image
 import org.eclipse.swt.internal.cocoa.NSAutoreleasePool
@@ -120,6 +123,25 @@ class CocoaTools {
     }
 	
 	static void setRepresentedFilename(Shell shell, File file) {
-		shell.view.window().setRepresentedFilename(NSString.stringWith(file.absolutePath))
+		shell.view.window().setRepresentedFilename(NSString.stringWith(file?.absolutePath ?: ""))
 	}
+	
+	static List<File> getFilesInTrash() {
+		String script = $/
+		tell application "Finder"
+			set the_files to {}
+			set file_list to (every file of the trash)
+			repeat with new_file in file_list
+				set the_files to the_files & {POSIX path of (new_file as Unicode text)}
+			end repeat
+			return the_files
+		end tell
+		/$
+		ScriptEngineManager mgr = new ScriptEngineManager();
+		ScriptEngine engine = mgr.getEngineByName("AppleScript");
+		return engine.eval(script)?.collect { String path ->
+			return new File(path)
+		}
+	}
+	
 }

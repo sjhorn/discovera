@@ -92,7 +92,7 @@ class MainView extends Composite {
         delete = new ToolItem(toolbar, SWT.PUSH)
         delete.text = "Delete"
         delete.image = Resources.getImage("gfx/22gray/trash.png")
-        delete.setEnabled(false)
+        delete.enabled = false
         
         item = new ToolItem(toolbar, SWT.SEPARATOR)
         item.setWidth(SWT.SEPARATOR_FILL)

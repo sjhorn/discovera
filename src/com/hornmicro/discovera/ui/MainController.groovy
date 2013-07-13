@@ -51,6 +51,7 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
     Action forwardAction
     Action refreshAction
     Action renameAction
+    Action newFolderAction
     Action undoAction
     Action redoAction
 	
@@ -166,7 +167,7 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
 	void setCurrentFolder(File file) {
 		sidebarController.setPath(file)
 		treeController.setRoot(file)
-		view.display.asyncExec { CocoaTools.setRepresentedFilename(view.shell, file) }
+		view.display.asyncExec { CocoaTools.setRepresentedFilename(view.shell, file == SidebarController.TRASH ? null : file) }
 		model.title = file.name
 		
 		statusbarController.model.items = treeController.getVisibleElements().size()
@@ -181,7 +182,7 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
 			Rectangle itemRect = treeController.getElementBounds(file)
 			Point spot
 			if(itemRect) {
-				int x = itemRect.x + 20
+				int x = itemRect.x + (itemRect.width / 2 as int)
 				int y = itemRect.y + itemRect.height + 10
 				spot = treeController.view.tree.toDisplay(x, y)
 			} else {
@@ -204,7 +205,7 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
         switch(event.type) {
             case BusEvent.Type.FILE_SELECTED:
                 File file = (File) event.data
-                if(file.isDirectory()) {
+                if(file.isDirectory() || file == SidebarController.TRASH) {
 					setCurrentFolder(file)
                     model.addHistory(file)
                 } else {

@@ -56,7 +56,12 @@ class TreeController extends Controller implements SelectionListener, ITreeConte
     }
     
     void setRoot(File root) {
-        setRoots( root.listFiles([accept: filter] as FileFilter))
+		if(root == SidebarController.TRASH) {
+			List<File> trashFiles = CocoaTools.getFilesInTrash()
+			setRoots( trashFiles?.toArray(new File[trashFiles.size()]))
+		} else {
+        	setRoots( root.listFiles([accept: filter] as FileFilter))
+		}
     }
     
     void setRoots(File[] roots) {

@@ -18,6 +18,7 @@ import com.hornmicro.util.Resources
 
 @CompileStatic
 class SidebarController extends Controller implements SelectionListener  {
+	final static File TRASH = new File("Trash") 
     SidebarView view
     
     void wireView() {
@@ -44,15 +45,22 @@ class SidebarController extends Controller implements SelectionListener  {
             new File(home, "Downloads"),
             new File(home, "Music"),
             new File(home, "Movies")
+			
         ].each { File file ->
             if(file.exists()) {
                 TreeItem item = new TreeItem(view.favorites, SWT.NONE)
-                item.text = " "+file.name
+                item.text = " "+file.name 
                 item.image = Resources.getGrayImageForFilePath(file.absolutePath)
                 item.data = file
             }
         }
-        
+		
+		// Add trash can
+		TreeItem trash = new TreeItem(view.favorites, SWT.NONE)
+		trash.text = " Trash"
+		trash.image = Resources.getGrayImageForID("ftrh") //trsh
+		trash.data = TRASH
+		
         new File("/Volumes").eachFile { File file ->
             if(!file.isHidden()) {
                 TreeItem item = new TreeItem(view.devices, SWT.NONE)

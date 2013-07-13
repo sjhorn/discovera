@@ -42,6 +42,14 @@ class Resources {
         }
         return imageCache["grayFileImage:${path}"]
     }
+	
+    static Image getGrayImageForID(String id) {
+    	if(!imageCache["grayFileImage:${id}"]) {
+    		imageCache["grayFileImage:${id}"] = new Image(
+				Display.getDefault(), CocoaTools.systemImageForID(id, 16), SWT.IMAGE_GRAY) 
+    	}
+    	return imageCache["grayFileImage:${id}"]
+    }
     
     static Image getImageForFilePath(String path) {
         return CocoaTools.imageForFilePath(path)
