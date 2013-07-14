@@ -2,6 +2,8 @@ package com.hornmicro.util
 
 import groovy.transform.CompileStatic
 
+import java.nio.file.Path
+
 import javax.script.ScriptEngine
 import javax.script.ScriptEngineManager
 
@@ -17,131 +19,164 @@ import org.eclipse.swt.internal.cocoa.OS
 import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.Shell
 
+import com.hornmicro.discovera.Discovera
+
 @CompileStatic
 class CocoaTools {
-    static Map<Integer, Image> iconCache = [:]
-    
-    static Image imageForFilePath(String path) {
-        return imageForFilePathAtWidth(path, 16)
-    }
+	static Map<Integer, Image> iconCache = [:]
 
-    static Image systemImageForID(String id, int width) {
-        NSAutoreleasePool pool = (NSAutoreleasePool) new NSAutoreleasePool().alloc().init()
-        try {
-            int osType = ((id.charAt(0) as int) << 24) + ((id.charAt(1) as int ) <<16) + ((id.charAt(2) as int) <<8) + (id.charAt(3) as int)
+	static Image imageForFilePath(String path) {
+		return imageForFilePathAtWidth(path, 16)
+	}
 
-            long[] iconRef = [ 0L ]
-            OS.GetIconRefFromTypeInfo(OS.kSystemIconsCreator, osType, 0, 0, 0, iconRef)
-            NSImage nsImage = (NSImage)new NSImage().alloc()
-            nsImage = nsImage.initWithIconRef(iconRef[0])
+	static Image systemImageForID(String id, int width) {
+		NSAutoreleasePool pool = (NSAutoreleasePool) new NSAutoreleasePool().alloc().init()
+		try {
+			int osType = ((id.charAt(0) as int) << 24) + ((id.charAt(1) as int ) <<16) + ((id.charAt(2) as int) <<8) + (id.charAt(3) as int)
 
-            NSSize size = new NSSize()
-            size.width = size.height = width
-            nsImage.setSize(size)
-            nsImage.setScalesWhenResized(true)
-            if(nsImage) {
-                NSImage imageCopy = (NSImage)new NSImage().alloc()
-                imageCopy.initWithSize(size)
-                imageCopy.retain()
+			long[] iconRef = [ 0L ]
+			OS.GetIconRefFromTypeInfo(OS.kSystemIconsCreator, osType, 0, 0, 0, iconRef)
+			NSImage nsImage = (NSImage)new NSImage().alloc()
+			nsImage = nsImage.initWithIconRef(iconRef[0])
 
-                // Draw the icon at the correct size
-                NSRect toRect = new NSRect()
-                toRect.x = toRect.y = 0
-                toRect.width = toRect.height = width
+			NSSize size = new NSSize()
+			size.width = size.height = width
+			nsImage.setSize(size)
+			nsImage.setScalesWhenResized(true)
+			if(nsImage) {
+				NSImage imageCopy = (NSImage)new NSImage().alloc()
+				imageCopy.initWithSize(size)
+				imageCopy.retain()
 
-                imageCopy.lockFocus()
-                nsImage.drawInRect(toRect, new NSRect(), OS.NSCompositeCopy, 1)
-                imageCopy.unlockFocus()
-                
-                // Cache images to avoid using too many OS handles
-                Image image = Image.cocoa_new(Display.current, SWT.ICON, imageCopy)
-                Integer hashCode = Arrays.hashCode(image.imageData.data)
+				// Draw the icon at the correct size
+				NSRect toRect = new NSRect()
+				toRect.x = toRect.y = 0
+				toRect.width = toRect.height = width
 
-                if(!iconCache.containsKey(hashCode)) {
-                    iconCache[hashCode] =  image
-                } else {
-                    image.dispose()
-                }
-                return iconCache[hashCode]
-            }
-            return null
-        } finally {
-            pool.release()
-        }
-    }
+				imageCopy.lockFocus()
+				nsImage.drawInRect(toRect, new NSRect(), OS.NSCompositeCopy, 1)
+				imageCopy.unlockFocus()
 
-    static Image imageForFilePathAtWidth(String path, int width) {
-        NSAutoreleasePool pool = (NSAutoreleasePool) new NSAutoreleasePool().alloc().init()
-        try {
-            NSWorkspace workspace = NSWorkspace.sharedWorkspace()
-            NSString nsPath = NSString.stringWith(path)
-            NSImage nsImage = workspace.iconForFile(nsPath)
-            if (nsImage != null) {
-                NSSize size = new NSSize()
-                size.width = size.height = width
-                nsImage.setSize(size)
-                nsImage.retain()
+				// Cache images to avoid using too many OS handles
+				Image image = Image.cocoa_new(Display.current, SWT.ICON, imageCopy)
+				Integer hashCode = Arrays.hashCode(image.imageData.data)
 
-                NSImage imageCopy = (NSImage)new NSImage().alloc()
-                imageCopy.initWithSize(size)
-                imageCopy.retain()
+				if(!iconCache.containsKey(hashCode)) {
+					iconCache[hashCode] =  image
+				} else {
+					image.dispose()
+				}
+				return iconCache[hashCode]
+			}
+			return null
+		} finally {
+			pool.release()
+		}
+	}
 
-                // Draw the icon at the correct size
-                NSRect toRect = new NSRect()
-                toRect.x = toRect.y = 0
-                toRect.width = toRect.height = width
+	static Image imageForFilePathAtWidth(String path, int width) {
+		NSAutoreleasePool pool = (NSAutoreleasePool) new NSAutoreleasePool().alloc().init()
+		try {
+			NSWorkspace workspace = NSWorkspace.sharedWorkspace()
+			NSString nsPath = NSString.stringWith(path)
+			NSImage nsImage = workspace.iconForFile(nsPath)
+			if (nsImage != null) {
+				NSSize size = new NSSize()
+				size.width = size.height = width
+				nsImage.setSize(size)
+				nsImage.retain()
 
-                imageCopy.lockFocus()
-                nsImage.drawInRect(toRect, new NSRect(), OS.NSCompositeCopy, 1)
-                imageCopy.unlockFocus()
+				NSImage imageCopy = (NSImage)new NSImage().alloc()
+				imageCopy.initWithSize(size)
+				imageCopy.retain()
 
-                // Cache images to avoid using too many OS handles
-                Image image = Image.cocoa_new(Display.current, SWT.ICON, imageCopy)
-                Integer hashCode = Arrays.hashCode(image.imageData.data)
+				// Draw the icon at the correct size
+				NSRect toRect = new NSRect()
+				toRect.x = toRect.y = 0
+				toRect.width = toRect.height = width
 
-                if(!iconCache.containsKey(hashCode)) {
-                    iconCache[hashCode] =  image
-                } else {
-                    image.dispose()
-                }
-                return iconCache[hashCode]
-            }
-            return null
-        } finally {
-            pool.release()
-        }
-    }
+				imageCopy.lockFocus()
+				nsImage.drawInRect(toRect, new NSRect(), OS.NSCompositeCopy, 1)
+				imageCopy.unlockFocus()
 
-    static int getIconContstant(String str) {
-        return ((str.charAt(0) as int) << 24) + ((str.charAt(1) as int ) <<16) + ((str.charAt(2) as int) <<8) + (str.charAt(3) as int)
-    }
-    
-    static void dispose() {
-        iconCache.each { Map.Entry<Integer, Image> entry ->
-            entry?.getValue()?.dispose()
-        }
-    }
-	
+				// Cache images to avoid using too many OS handles
+				Image image = Image.cocoa_new(Display.current, SWT.ICON, imageCopy)
+				Integer hashCode = Arrays.hashCode(image.imageData.data)
+
+				if(!iconCache.containsKey(hashCode)) {
+					iconCache[hashCode] =  image
+				} else {
+					image.dispose()
+				}
+				return iconCache[hashCode]
+			}
+			return null
+		} finally {
+			pool.release()
+		}
+	}
+
+	static int getIconContstant(String str) {
+		return ((str.charAt(0) as int) << 24) + ((str.charAt(1) as int ) <<16) + ((str.charAt(2) as int) <<8) + (str.charAt(3) as int)
+	}
+
+	static void dispose() {
+		iconCache.each { Map.Entry<Integer, Image> entry ->
+			entry?.getValue()?.dispose()
+		}
+	}
+
 	static void setRepresentedFilename(Shell shell, File file) {
 		shell.view.window().setRepresentedFilename(NSString.stringWith(file?.absolutePath ?: ""))
 	}
-	
+
+	// Some Applescript fun to place nicely with finder!
 	static List<File> getFilesInTrash() {
 		String script = $/
 		tell application "Finder"
 			set the_files to {}
-			set file_list to (every file of the trash)
+			set file_list to (every item of the trash)
 			repeat with new_file in file_list
 				set the_files to the_files & {POSIX path of (new_file as Unicode text)}
 			end repeat
 			return the_files
 		end tell
 		/$
-		ScriptEngineManager mgr = new ScriptEngineManager();
-		ScriptEngine engine = mgr.getEngineByName("AppleScript");
-		return engine.eval(script)?.collect { String path ->
-			return new File(path)
+		ScriptEngineManager mgr = new ScriptEngineManager()
+		ScriptEngine scriptEngine = mgr.getEngineByName("AppleScript")
+		def paths
+		try {
+			paths = scriptEngine.eval(script)
+		} catch(ScriptException se) {
+			
+			// Try again once then give up...
+			Thread.sleep(100)
+			try {
+				paths = scriptEngine.eval(script)
+			} catch(ScriptException) {
+			}
+		}
+		return ( paths?.collect { String path -> return new File(path) } ?: [] )
+	}
+
+	static boolean moveFilesToTrash(List<Path> files) {
+		List<String> fileString = files.collect { Path path ->
+			File file = path.toFile()
+			return """(POSIX file "${file.absolutePath}")""" as String
+		}
+		String script = $/
+			tell application "Finder"
+				move every item of { ${fileString.join(', ')} } to trash
+			end tell
+		/$
+		try {
+			ScriptEngineManager mgr = new ScriptEngineManager()
+			ScriptEngine scriptEngine = mgr.getEngineByName("AppleScript")
+			scriptEngine.eval(script)
+			return true
+		} catch(Exception e) {
+			return false
 		}
 	}
-	
+
 }

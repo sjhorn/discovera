@@ -1,12 +1,15 @@
 package com.hornmicro.discovera.ui
 
-import groovy.transform.CompileStatic
-
+import java.nio.file.Files
 import java.nio.file.Path
+
+import javax.script.ScriptEngine
+import javax.script.ScriptEngineManager
 
 import org.codehaus.groovy.runtime.StackTraceUtils
 import org.eclipse.jface.action.Action
 import org.eclipse.jface.action.MenuManager
+import org.eclipse.jface.dialogs.MessageDialog
 import org.eclipse.jface.window.ApplicationWindow
 import org.eclipse.jface.window.Window
 import org.eclipse.swt.SWT
@@ -24,7 +27,9 @@ import org.mbassy.MBassador
 import org.mbassy.listener.Listener
 
 import com.hornmicro.discovera.action.BackAction
+import com.hornmicro.discovera.action.DeleteAction
 import com.hornmicro.discovera.action.ForwardAction
+import com.hornmicro.discovera.action.NewFolderAction
 import com.hornmicro.discovera.action.RedoAction
 import com.hornmicro.discovera.action.RefreshAction
 import com.hornmicro.discovera.action.RenameAction
@@ -36,7 +41,7 @@ import com.hornmicro.util.Bind
 import com.hornmicro.util.CocoaTools
 import com.hornmicro.util.Resources
 
-@CompileStatic
+//@CompileStatic
 class MainController extends ApplicationWindow implements DisposeListener, Runnable, Window.IExceptionHandler {
     MenuManager menuManager
     private StatusbarController statusbarController
@@ -52,6 +57,8 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
     Action refreshAction
     Action renameAction
     Action newFolderAction
+    Action deleteAction
+	 
     Action undoAction
     Action redoAction
 	
@@ -67,6 +74,8 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
         redoAction = new RedoAction(this)
         
 		renameAction = new RenameAction(this)
+		newFolderAction = new NewFolderAction(this)
+        deleteAction = new DeleteAction(this)
 		
         addMenuBar()
         setExceptionHandler(this)
@@ -107,26 +116,43 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
         Bind.from(model, "title").toWidgetText(shell)
         model.title = "Discovera"
         
+        // Back/Forward Actions and New Folder
         Actions.selection(view.back).connect(backAction)
         Actions.selection(view.forward).connect(forwardAction)
-        Actions.selection(view.refresh).connect(refreshAction)
-		
-		Actions.selection(view.renameFile).connect(renameAction)
-		
-		// Back/Forward Actions
+		Actions.selection(view.newFolder).connect(newFolderAction)
 		backAction.setEnabled(false)
 		forwardAction.setEnabled(false)
-        Bind.from(model, "historyIndex").toWritableValue { sel ->
-            backAction.setEnabled(false)
-            forwardAction.setEnabled(false)
-            
-            if(model.history.size() > 0 && model.historyIndex > 0) {
-                backAction.setEnabled(true)
-            }
-            if(model.history.size() > 0 && model.historyIndex < model.history.size() - 1 ) {
-                forwardAction.setEnabled(true)
-            }
-        }
+		newFolderAction.setEnabled(false)
+		Bind.from(model, "historyIndex").toWritableValue { sel ->
+			backAction.setEnabled(false)
+			forwardAction.setEnabled(false)
+			newFolderAction.setEnabled(false)
+			if(model.history.size() > 0 && model.historyIndex > 0) {
+				backAction.setEnabled(true)
+			}
+			if(model.history.size() > 0 && model.historyIndex < model.history.size() - 1 ) {
+				forwardAction.setEnabled(true)
+			}
+			if(model.currentHistory() && model.currentHistory() != SidebarController.TRASH) {
+				newFolderAction.setEnabled(true)
+			}
+		}
+
+		// Rename and Trash
+		Actions.selection(view.renameFile).connect(renameAction)
+		Actions.selection(view.delete).connect(deleteAction)
+		renameAction.setEnabled(false)
+		deleteAction.setEnabled(false)
+		Bind.from(model, "selectedFiles").toWritableValue { sel ->
+			renameAction.setEnabled(false)
+			deleteAction.setEnabled(false)
+			if(model.selectedFiles.size()) {
+				renameAction.setEnabled(true)
+				deleteAction.setEnabled(true)
+			}
+		}
+		
+		Actions.selection(view.refresh).connect(refreshAction)
 		
 		// Undo/Redo Actions
 		undoAction.setEnabled(false)
@@ -146,6 +172,12 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
         sidebarController.wireView()
         treeController.wireView()
         statusbarController.wireView()
+		
+		// Avoid later thread issues by talking to awt now
+		def th = Thread.start {
+			ScriptEngineManager mgr = new ScriptEngineManager()
+			ScriptEngine scriptEngine = mgr.getEngineByName("AppleScript")
+        }
     }
     
     void goBack() {
@@ -174,13 +206,13 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
 		statusbarController.model.selectedCount = 0
 	}
 	
-	boolean calloutOpened = false
 	void rename() {
 		File file =  model.selectedFiles.first().toFile()
 		if(file) {
 			treeController.viewer.reveal(file)
 			Rectangle itemRect = treeController.getElementBounds(file)
 			Point spot
+			
 			if(itemRect) {
 				int x = itemRect.x + (itemRect.width / 2 as int)
 				int y = itemRect.y + itemRect.height + 10
@@ -199,6 +231,43 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
 		
 	}
 	
+	void newFolder() {
+		File parent = model.currentHistory()
+		if(parent) {
+			File newFolder = new File(parent, "New Folder")
+			int count = 1
+			while(newFolder.exists()) {
+				newFolder = new File(parent, "New Folder ${++count}")
+				if(count > 10000) {
+					throw new RuntimeException("Crazy number of new folders")
+				}	
+			}
+			if(newFolder.mkdir()) {
+				treeController.setRoot(model.currentHistory())
+				setSelectedFiles([newFolder.toPath()] as List<Path>)
+				view.display.asyncExec { rename() }
+			} else {
+				MessageDialog.openError(view.shell, "Problem adding folder" , "There was a problem creating the new folder")
+			}
+		}
+	}
+	
+	void trash() {
+		if(model.currentHistory() != SidebarController.TRASH) {
+			CocoaTools.moveFilesToTrash(model.selectedFiles)
+			refresh()
+		} else {
+			model.selectedFiles.each { Path path ->
+				Files.deleteIfExists(path)
+			}
+			refresh()
+		}
+	}
+	
+	void setSelectedFiles(List<Path> selectedFiles) {
+		model.selectedFiles = selectedFiles
+		statusbarController.model.selectedCount = selectedFiles.size()
+	}
     
     @Listener
     void onBusEvent(BusEvent event) {
@@ -213,8 +282,7 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
                 }
                 break
             case BusEvent.Type.FILES_SELECTED:
-				model.selectedFiles = (event.data?.collect { ( (File) it).toPath() } ?: []) as List<Path>
-                statusbarController.model.selectedCount = model.selectedFiles.size()
+				setSelectedFiles( (event.data?.collect { ( (File) it).toPath() } ?: []) as List<Path> )
                 break
 		    case BusEvent.Type.FILES_CHANGED:
 				Map<File, File> files = (Map<File, File>) event.data
@@ -235,6 +303,7 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
         menuManager = new MenuManager()
 		MenuManager fileMenu = new MenuManager("File")
 		menuManager.add(fileMenu)
+		fileMenu.add(newFolderAction)
 		fileMenu.add(renameAction)
 		
 		MenuManager editMenu = new MenuManager("Edit")

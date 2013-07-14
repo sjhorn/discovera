@@ -84,7 +84,7 @@ class Bind {
     }
 
     Bind toWritableValue(Closure closure) {
-        context.bindValue(from, new WritableValue() {
+        context.bindValue(from, new WritableValue(from.getValue(), from.getValueType()) {
             void doSetValue(Object sel) {
                 closure(sel)
             }

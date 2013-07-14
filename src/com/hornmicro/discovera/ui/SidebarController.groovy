@@ -30,7 +30,7 @@ class SidebarController extends Controller implements SelectionListener  {
         refresh()
         
         view.tree.setSelection(view.favorites.getItem(0))
-        widgetSelected(null)
+		widgetSelected(null)
     }
     
     void refresh() {

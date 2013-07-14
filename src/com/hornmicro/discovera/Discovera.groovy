@@ -2,14 +2,14 @@ package com.hornmicro.discovera
 
 import groovy.transform.CompileStatic
 
-import org.codehaus.groovy.runtime.StackTraceUtils;
+import javax.script.ScriptEngine
+import javax.script.ScriptEngineManager
+
 import org.eclipse.core.databinding.observable.Realm
 import org.eclipse.jface.databinding.swt.SWTObservables
 import org.eclipse.swt.widgets.Display
 import org.mbassy.BusConfiguration
-import org.mbassy.IPublicationErrorHandler;
 import org.mbassy.MBassador
-import org.mbassy.PublicationError;
 
 import com.hornmicro.discovera.ui.MainController
 import com.hornmicro.event.BusEvent
@@ -18,7 +18,6 @@ import com.hornmicro.util.MainThreader
 @CompileStatic
 class Discovera {
     static MBassador<BusEvent> bus
-    
     Display display
     MainController controller
     

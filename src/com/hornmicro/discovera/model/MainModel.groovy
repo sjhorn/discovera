@@ -12,19 +12,47 @@ class MainModel {
     
     String title
 	
-    Integer historyIndex = 0
+    Integer historyIndex = -1
     LinkedList<File> history = new LinkedList<File>()
 	
 	Integer undoIndex = -1
 	LinkedList<UndoableAction> undoHistory = new LinkedList<UndoableAction>()
 	
 	List<Path> selectedFiles = []
-    
+
+	/*	
+	final private java.beans.PropertyChangeSupport this$propertyChangeSupport
+	public MainModel() {
+		this$propertyChangeSupport = new java.beans.PropertyChangeSupport(this)
+	}
+	
+	public void firePropertyChange(java.lang.String name, java.lang.Object oldValue, java.lang.Object newValue) {
+		println "Got ${name} ${oldValue} ${newValue}"
+		this$propertyChangeSupport.firePropertyChange(name, oldValue, newValue)
+	}
+	
+	public void addPropertyChangeListener(java.beans.PropertyChangeListener listener) {
+		this$propertyChangeSupport.addPropertyChangeListener(listener)
+	}
+
+	public void addPropertyChangeListener(java.lang.String name, java.beans.PropertyChangeListener listener) {
+		this$propertyChangeSupport.addPropertyChangeListener(name, listener)
+	}
+
+	public void removePropertyChangeListener(java.beans.PropertyChangeListener listener) {
+		this$propertyChangeSupport.removePropertyChangeListener(listener)
+	}
+
+	public void removePropertyChangeListener(java.lang.String name, java.beans.PropertyChangeListener listener) {
+		this$propertyChangeSupport.removePropertyChangeListener(name, listener)
+	}
+	*/
+	
 	//
 	// Navigation History
 	//
     void addHistory(File file) {
-        if(!historyIndex) historyIndex = 0 
+        if(!historyIndex) setHistoryIndex(0) 
         if(historyIndex && historyIndex < history.size()) {
             
             // remove the tail to write the new history
