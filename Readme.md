@@ -29,3 +29,5 @@ A simple runnable jar for OSX is available -
 * The Application icon is based on a commerical free icon set from [Minicons Free Vector Icons Pack](http://www.webalys.com/minicons)
 * The ability to run on the main thread without specifying -XstartOnFirstThread is thanks to [Silenio Quarti's code](https://bugs.eclipse.org/bugs/show_bug.cgi?id=389486)
 * Correcting the top line of the tree/table header was based on the suggestion here by [gcbrueckmann on stack overflow](http://stackoverflow.com/questions/8263968/nstableheaderview-adds-a-line)
+* Ideas/Implementation details for folder watching with the FSEvents API and JNA calls [    
+barbarywatchservice](http://code.google.com/p/barbarywatchservice/)
