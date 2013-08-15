@@ -1,15 +1,17 @@
 package com.hornmicro.util
 
-import static com.hornmicro.util.CoreServices.*
-import static com.hornmicro.util.CoreServices.FSEventStreamCreateFlags.*
-import static com.hornmicro.util.CoreServices.FSEventStreamEventFlags.*
+import static com.hornmicro.jna.CoreServices.*
+import static com.hornmicro.jna.CoreServices.FSEventStreamCreateFlags.*
+import static com.hornmicro.jna.CoreServices.FSEventStreamEventFlags.*
+import com.hornmicro.jna.CoreServices
+import com.hornmicro.jna.CoreServices.FSEventStreamEventFlags;
+import com.hornmicro.jna.CoreServices.FSEventStreamRef
+
 import groovy.transform.ToString
 
 import java.nio.file.Path
 import java.nio.file.Paths
 
-import com.hornmicro.util.CoreServices.FSEventStreamEventFlags;
-import com.hornmicro.util.CoreServices.FSEventStreamRef
 import com.sun.jna.NativeLong
 import com.sun.jna.Pointer
 

@@ -1,4 +1,5 @@
-package com.hornmicro.util;
+package com.hornmicro.jna;
+
 
 import com.sun.jna.Callback;
 import com.sun.jna.Library;
@@ -62,7 +63,7 @@ public interface CoreServices extends Library {
             int flags // 0 is good for now
 
     );
-
+    
     boolean FSEventStreamStart(FSEventStreamRef streamRef);
 
     void FSEventStreamStop(FSEventStreamRef streamRef);
@@ -121,4 +122,5 @@ public interface CoreServices extends Library {
     };
     
     public static final int kFSEventStreamEventIdSinceNow = -1;
+    
 }

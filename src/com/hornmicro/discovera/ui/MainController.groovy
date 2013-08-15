@@ -34,6 +34,7 @@ import com.hornmicro.discovera.action.RedoAction
 import com.hornmicro.discovera.action.RefreshAction
 import com.hornmicro.discovera.action.RenameAction
 import com.hornmicro.discovera.action.UndoAction
+import com.hornmicro.discovera.action.UndoableAction
 import com.hornmicro.discovera.model.MainModel
 import com.hornmicro.event.BusEvent
 import com.hornmicro.util.Actions
@@ -242,7 +243,12 @@ class MainController extends ApplicationWindow implements DisposeListener, Runna
 					throw new RuntimeException("Crazy number of new folders")
 				}	
 			}
-			if(newFolder.mkdir()) {
+			UndoableAction doNewFolder =  new UndoableAction(type: UndoableAction.Type.NEWFOLDER, files: [(newFolder.toPath()):null])
+			doNewFolder.run()
+			if(newFolder.exists()) {
+				model.addUndoableAction(doNewFolder)
+				
+				// Popup rename 
 				treeController.setRoot(model.currentHistory())
 				setSelectedFiles([newFolder.toPath()] as List<Path>)
 				view.display.asyncExec { rename() }

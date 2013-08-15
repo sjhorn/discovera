@@ -27,9 +27,11 @@ class UndoableAction implements Runnable {
 				break
 			case Type.NEWFOLDER:
 				files.each { Path newFile, Path empty ->
-					println "Would delete new folder ${newFile}"
-					//Files.delete(newFile)
+					Files.delete(newFile)
 				}
+				notifyChange(files.collectEntries { entry ->
+					return [ (entry.key.toFile()) : entry.value.toFile() ]
+				})
 				break
 			default:
 				throw new Exception("Invalid undo action")
@@ -54,7 +56,6 @@ class UndoableAction implements Runnable {
 				break
 			case Type.NEWFOLDER:
 				files.each { Path newFile, Path empty ->
-					println "Would create new folder ${newFile}"
 					Files.createDirectory(newFile)
 				}
 				break

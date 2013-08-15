@@ -82,10 +82,17 @@ class TreeController extends Controller implements SelectionListener, ITreeConte
 	
 	void update(Map<File, File> files) {
 		for(TreeItem item : WidgetTools.getVisibleTreeItems(view.tree)) {
-			File newFile = files[ (File) item.data]
-			if(files[item.data]) {
+			File file = (File) item.data
+			File newFile = files[file]
+			if(newFile) {
+				
+				// update file name 
 				item.setData(newFile)
 				viewer.update(newFile, null)
+			} else if (files.containsKey(file)) {
+				
+				// delete 
+				viewer.remove(file)
 			}
 		}
 		widgetSelected(null)

@@ -19,7 +19,10 @@ import org.eclipse.swt.internal.cocoa.OS
 import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.Shell
 
-import com.hornmicro.discovera.Discovera
+import com.hornmicro.jna.ObjectiveC.Utils as OC;
+import com.sun.jna.Library
+import com.sun.jna.Native
+import com.sun.jna.Pointer
 
 @CompileStatic
 class CocoaTools {
@@ -130,33 +133,30 @@ class CocoaTools {
 		shell.view.window().setRepresentedFilename(NSString.stringWith(file?.absolutePath ?: ""))
 	}
 
-	// Some Applescript fun to place nicely with finder!
 	static List<File> getFilesInTrash() {
-		String script = $/
-		tell application "Finder"
-			set the_files to {}
-			set file_list to (every item of the trash)
-			repeat with new_file in file_list
-				set the_files to the_files & {POSIX path of (new_file as Unicode text)}
-			end repeat
-			return the_files
-		end tell
-		/$
-		ScriptEngineManager mgr = new ScriptEngineManager()
-		ScriptEngine scriptEngine = mgr.getEngineByName("AppleScript")
-		def paths
-		try {
-			paths = scriptEngine.eval(script)
-		} catch(ScriptException se) {
+		List<File> files = []
+		
+		Native.loadLibrary("ScriptingBridge", Library.class)
+		Pointer pool = OC.msgSend(OC.msgSend(OC.cls("NSAutoReleasePool"), "alloc"), "init")
+		
+		Pointer SBApplicationClass = OC.cls("SBApplication")
+		Pointer finderAppPtr = OC.msgSend(SBApplicationClass, "applicationWithBundleIdentifier:", OC.nsStringPtr("com.apple.Finder"))
+		Pointer itemsInTrash = OC.msgSend(OC.msgSend(finderAppPtr, "trash"), "items")
+		int itemCount = OC.msgSendInt(itemsInTrash, "count")
+		for(int i = 0; i < itemCount; i++) {
+			Pointer item = OC.msgSend(itemsInTrash, "objectAtIndex:", i)
 			
-			// Try again once then give up...
-			Thread.sleep(100)
-			try {
-				paths = scriptEngine.eval(script)
-			} catch(ScriptException) {
-			}
+			String file = OC.nsStringToString(
+				OC.msgSend(
+					OC.msgSend(OC.cls("NSURL"), "URLWithString:",
+						OC.msgSend(item, "URL")
+					), "path"
+				)
+			)
+			files.add(new File(file))
 		}
-		return ( paths?.collect { String path -> return new File(path) } ?: [] )
+		OC.msgSend(pool, "drain")
+		return files
 	}
 
 	static boolean moveFilesToTrash(List<Path> files) {
