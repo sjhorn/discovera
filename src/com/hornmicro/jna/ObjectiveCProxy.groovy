@@ -24,7 +24,8 @@ class ObjectiveCProxy extends GroovyObjectSupport {
 		if(!selector) {
 			throw new MissingMethodException("Could not find function for name ${name}, args: ${args}")
 		}
-		Object result = ObjectiveC.RUNTIME.objc_msgSend(pointer, selector, args)
+        Object[] newArgs = convertProxies(args)
+		Object result = ObjectiveC.RUNTIME.objc_msgSend(pointer, selector, newArgs)
 		return new ObjectiveCProxy(new Pointer(result))
 	}
 	
@@ -34,7 +35,8 @@ class ObjectiveCProxy extends GroovyObjectSupport {
 		if(!selector) {
 			throw new MissingMethodException("Could not find function for name ${name}, args: ${options.values()}")
 		}
-		Object result = ObjectiveC.RUNTIME.objc_msgSend(pointer, selector, options.values().toArray() )
+        Object[] newArgs = convertProxies(options.values().toArray())
+		Object result = ObjectiveC.RUNTIME.objc_msgSend(pointer, selector, newArgs)
 		return new ObjectiveCProxy(new Pointer(result))
 	}
 	
@@ -45,4 +47,21 @@ class ObjectiveCProxy extends GroovyObjectSupport {
 	public int getInt() {
 		return new Long(pointer.peer).intValue()
 	}
+    
+    private Object[] convertProxies(Object args) {
+        Object[] newArgs
+        if(args instanceof Object[]) {
+            newArgs = new Object[args.size()]
+            for(int idx = 0; idx < args.size(); idx++) {
+                newArgs[idx] = convertProxy(args[idx])
+            }
+        } else {
+            newArgs = new Object[1]
+            newArgs[0] = convertProxy(args) 
+        }
+        return newArgs
+    }
+    private Object convertProxy(Object o) {
+        return o instanceof ObjectiveCProxy ? ((ObjectiveCProxy) o).ptr : o
+    }
 }

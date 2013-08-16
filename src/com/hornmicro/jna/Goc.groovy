@@ -18,8 +18,8 @@ class Goc {
 			((id.charAt(2) as int) <<8) + (id.charAt(3) as int)
 	}
 	static main(args) {
-		
-//		Pointer nsMutableArrayClass = cls("NSMutableArray")
+		//println "hello world"
+		Pointer nsMutableArrayClass = cls("NSMutableArray")
 //		
 //		Pointer nsMutableArray = msgSend(nsMutableArrayClass, "array")
 //		msgSend(nsMutableArray, "addObject:", nsStringPtr("one"))
@@ -33,34 +33,22 @@ class Goc {
 		//Native.loadLibrary("ScriptingBridge", Library.class)
 		
 		//Pointer pool = msgSend(msgSend(cls("NSAutoreleasePool"), "alloc"), "init")
+        /*
 		ObjectiveCProxy pool = new NSAutoreleasePool().alloc().init()
-		
-		//Pointer SBApplicationClass = cls("SBApplication")
-		//Pointer finderAppPtr = msgSend(SBApplicationClass, "applicationWithBundleIdentifier:", nsStringPtr("com.apple.Finder"))
-		
-		//Pointer finderAppPtr = new SBApplication().invokePtr(applicationWithBundleIdentifier: nsStringPtr("com.apple.Finder"))
 		
 		List<File> files = [new File("/tmp/one.txt"), new File("/tmp/two.txt")]
 		
-		//Pointer urlListDescr = msgSend(cls("NSAppleEventDescriptor"), "listDescriptor")
-		Pointer urlListDescr = new NSAppleEventDescriptor().listDescriptor().ptr
+		ObjectiveCProxy urlListDescr = new NSAppleEventDescriptor().listDescriptor()
 		
 		Pointer NSAppleEventDescriptorClass = cls("NSAppleEventDescriptor")
 		
 		files.eachWithIndex { File file, int idx ->
-//			Pointer nsURL = msgSend(cls("NSURL"), "fileURLWithPath:", nsStringPtr(file.absolutePath))
 			ObjectiveCProxy nsURL = new NSURL().invoke(fileURLWithPath: nsStringPtr(file.absolutePath))
-			Pointer descr = new NSAppleEventDescriptor().invoke(
+			ObjectiveCProxy descr = new NSAppleEventDescriptor().invoke(
 				descriptorWithDescriptorType: stringToDescType("furl"),
-				data: nsURL.absoluteString().invoke(dataUsingEncoding: 4).ptr
-			).ptr
-//			Pointer descr = msgSend(
-//				NSAppleEventDescriptorClass, 
-//				"descriptorWithDescriptorType:data:",
-//				stringToDescType("furl"),
-//				msgSend( msgSend(nsURL, "absoluteString"), "dataUsingEncoding:", 4 /*NSUTF8StringEncoding*/)
-//			)
-			msgSend(urlListDescr, "insertDescriptor:atIndex:", descr, idx + 1)
+				data: nsURL.absoluteString().invoke(dataUsingEncoding: 4)
+			)
+            urlListDescr.invoke(insertDescriptor:descr, atIndex: idx+1)
 		}
 		ProcessSerialNumber psn = getFinderPSN()
 		Pointer targetDesc = msgSend(
@@ -79,7 +67,7 @@ class Goc {
 			-1, // kAutoGenerateReturnID
 			0 // kAnyTransactionID
 		)
-		msgSend(descriptor, "setDescriptor:forKeyword:", urlListDescr, stringToDescType("----"))
+		msgSend(descriptor, "setDescriptor:forKeyword:", urlListDescr.ptr, stringToDescType("----"))
 		AppleEvent replyEvent = new AppleEvent()
 		AppleEvent event = new AppleEvent(msgSend(descriptor, "aeDesc"))
 		int replyErr = ApplicationServices.INSTANCE.AESendMessage(
@@ -88,7 +76,7 @@ class Goc {
 			3, // kAEWaitReply
 			new NativeLong(-1) // kAEDefaultTimeout
 		)
-		if(replyErr != 0 /* noErr */ ) {
+		if(replyErr != 0  ) { // noErr 
 			println "error 1 (sending apple event)"
 			return
 		}
@@ -117,6 +105,7 @@ class Goc {
 		//msgSend(pool, "drain")
 		pool.drain()
 		println "All good!"
+        */
 	}
 	
 	static ProcessSerialNumber getFinderPSN() {
