@@ -19,25 +19,27 @@ class ObjectiveCProxy extends GroovyObjectSupport {
 	}
 	
 	public Object invokeMethod(String name, Object args) {
-		println "calling $name"
-		Pointer selector = ObjectiveC.RUNTIME.sel_getUid(name)
-		if(!selector) {
+		MethodSignature methodSignature = new MethodSignature(pointer, name)
+		if(!methodSignature.selector) {
 			throw new MissingMethodException("Could not find function for name ${name}, args: ${args}")
 		}
-        Object[] newArgs = convertProxies(args)
-		Object result = ObjectiveC.RUNTIME.objc_msgSend(pointer, selector, newArgs)
-		return new ObjectiveCProxy(new Pointer(result))
+		if(methodSignature.types.size() != args.size()) {
+			throw new RuntimeException("Wrong argument count."+
+				"The selector ${name} requires ${methodSignature.types.size()} "+
+				"arguments, but received ${args.size()} for name ${name}, args: ${args}")
+		}
+		//println "calling $name"
+        Object[] newArgs = convertArgumentTypes(args, methodSignature)
+		return sendAndConvertReturnType(methodSignature, newArgs)
 	}
 	
-	public ObjectiveCProxy invoke(Map options) {
+	public <T> T invoke(Map options) {
 		String name = options.keySet().join(":") + ":"
-		Pointer selector = ObjectiveC.RUNTIME.sel_getUid(name)
-		if(!selector) {
-			throw new MissingMethodException("Could not find function for name ${name}, args: ${options.values()}")
-		}
-        Object[] newArgs = convertProxies(options.values().toArray())
-		Object result = ObjectiveC.RUNTIME.objc_msgSend(pointer, selector, newArgs)
-		return new ObjectiveCProxy(new Pointer(result))
+		return (T) invokeMethod(name, options.values().toArray())
+	}
+	
+	public <T> T invoke(String name, Object... args) {
+		return (T) invokeMethod(name, args)
 	}
 	
 	public Pointer getPtr() {
@@ -47,21 +49,52 @@ class ObjectiveCProxy extends GroovyObjectSupport {
 	public int getInt() {
 		return new Long(pointer.peer).intValue()
 	}
-    
-    private Object[] convertProxies(Object args) {
-        Object[] newArgs
-        if(args instanceof Object[]) {
-            newArgs = new Object[args.size()]
-            for(int idx = 0; idx < args.size(); idx++) {
-                newArgs[idx] = convertProxy(args[idx])
-            }
-        } else {
-            newArgs = new Object[1]
-            newArgs[0] = convertProxy(args) 
-        }
-        return newArgs
-    }
-    private Object convertProxy(Object o) {
-        return o instanceof ObjectiveCProxy ? ((ObjectiveCProxy) o).ptr : o
-    }
+	
+	public String getString() {
+		return pointer.getString(0)
+	}
+	
+	public int invokePtr(Map options) {
+		return invoke(options).getPtr()
+	}
+	
+	public int invokeInt(Map options) {
+		return invoke(options).getInt()
+	}
+	
+	@Override
+	public String toString() {
+		return "ObjectiveCProxy for ${pointer.peer.toString()}"
+	}
+	
+	private Object[] convertArgumentTypes(Object args, MethodSignature methodSignature) {
+		Object[] newArgs
+		if(args instanceof Object[]) {
+			newArgs = new Object[args.size()]
+			for(int idx = 0; idx < args.size(); idx++) {
+				newArgs[idx] = new TypeUtil().jToC(args[idx], methodSignature.types[idx])
+			}
+		} else {
+			newArgs = new Object[1]
+			newArgs[0] = new TypeUtil().jToC(args, methodSignature.types[0])
+		}
+		return newArgs
+	}
+	
+	private Object sendAndConvertReturnType(MethodSignature methodSignature, Object[] args) {
+		String returnTypeFirstChar = methodSignature.returnType[0]
+		Object ret
+		if ( "[{(".indexOf(returnTypeFirstChar) == -1 ){
+			if ( "df".indexOf(returnTypeFirstChar) != -1 ) {
+				ret = ObjectiveC.RUNTIME.objc_msgSend_fpret(pointer, methodSignature.selector, args) 
+			} else {
+				ret = ObjectiveC.RUNTIME.objc_msgSend(pointer, methodSignature.selector, args)
+			}
+			return new TypeUtil().cToJ(ret, methodSignature.returnType)
+		}
+		
+		// Need to check this ! We are wrapping all structs in ObjectiveCProxy 
+		ret = ObjectiveC.RUNTIME.objc_msgSend(pointer, methodSignature.selector, args)
+		return new TypeUtil.NSObjectMapper().cToJ(ret, methodSignature.returnType)
+	}
 }

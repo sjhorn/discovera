@@ -93,6 +93,9 @@ public interface ObjectiveC extends Library {
     	public static String clsName(Pointer cls) {
     		return ObjectiveC.RUNTIME.class_getName(cls);
     	}
+    	public static String clsNameObj(Pointer obj) {
+    		return ObjectiveC.RUNTIME.object_getClassName(obj);
+    	}
     	public static Pointer sel(String sel) {
     		return ObjectiveC.RUNTIME.sel_getUid(sel);
     	}

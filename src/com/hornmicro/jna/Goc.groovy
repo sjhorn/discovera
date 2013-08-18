@@ -19,7 +19,8 @@ class Goc {
 	}
 	static main(args) {
 		//println "hello world"
-		Pointer nsMutableArrayClass = cls("NSMutableArray")
+//		Pointer nsMutableArrayClass = cls("NSMutableArray")
+//		Thread.sleep(10000)
 //		
 //		Pointer nsMutableArray = msgSend(nsMutableArrayClass, "array")
 //		msgSend(nsMutableArray, "addObject:", nsStringPtr("one"))
@@ -30,6 +31,14 @@ class Goc {
 //		println msgSendInt(nsMutableArray, "count")
 //		println nsStringToString(msgSend(nsMutableArray, "lastObject"))
 		
+		NSMutableArray nsma = new NSMutableArray().array()
+		nsma.invoke(addObject: nsStringPtr("one"))
+		nsma.invoke(addObject: nsStringPtr("two"))
+		nsma.invoke(addObject: nsStringPtr("test"))
+		println nsma.count()
+		println nsma.lastObject()
+		println nsma.invoke(objectAtIndex: 1)
+		 
 		//Native.loadLibrary("ScriptingBridge", Library.class)
 		
 		//Pointer pool = msgSend(msgSend(cls("NSAutoreleasePool"), "alloc"), "init")
