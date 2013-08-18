@@ -69,11 +69,18 @@ class TypeUtil {
 	            return null
 	        }
 	        String className = clsNameObj(cObj)
-	        if ( "NSString".equals(className) || "__NSCFString".equals(className)){
-				return nsStringToString(cObj)
-	        }
+//	        if ( "NSString".equals(className) || "__NSCFString".equals(className)){
+//				return nsStringToString(cObj)
+//	        }
 			
-			return TypeUtil?.typeRegistry[className]?.newInstance(cObj) ?: new ObjectiveCProxy(cObj)
+			Class type = TypeUtil.typeRegistry[className]
+			if(type) {
+				ObjectiveCProxy item = type.newInstance()
+				item.setPointer(cObj)
+				return item
+			}  else {
+				return new ObjectiveCProxy(cObj) 
+			}
 		}
 		public Object jToC(Object jVar, String signature) {
 			if ( jVar instanceof ObjectiveCProxy ){
@@ -94,6 +101,23 @@ class TypeUtil {
 	}
 	
 	static Map<String, Class> typeRegistry = [:]
+	static boolean isRegistered(String type) {
+		return typeRegistry.containsKey(type)
+	}
+	static registerType(String type, Class proxyClass, Pointer classPtr) {
+		Object instance = msgSend(msgSend(classPtr, "alloc"), "init")
+		String instanceType = clsNameObj(instance)
+		//msgSend(instance, "dealloc")
+		println "Adding $type and $instanceType to typeRegistry"
+		synchronized(typeRegistry) {
+			typeRegistry[type] = proxyClass
+			if(instanceType != type && instanceType != "nil") {
+				typeRegistry[instanceType] = proxyClass
+			}
+		}
+	}
+	
+	
 	Map<String, TypeMapper> mappers = [:]
 	
 	public TypeUtil() {

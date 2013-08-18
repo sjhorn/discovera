@@ -8,9 +8,13 @@ class ObjectiveCProxy extends GroovyObjectSupport {
 	Pointer pointer
 	
 	public ObjectiveCProxy() {
-		this.pointer = cls(this.getClass().getSimpleName())
-		if(!this.pointer) {
+		String className = this.getClass().getSimpleName()
+		pointer = cls(className)
+		if(!pointer) {
 			throw new RuntimeException("Failed to create a proxy for ${this.getClass().getSimpleName()}")
+		}
+		if(!TypeUtil.isRegistered(className)) {
+			TypeUtil.registerType(className, this.getClass(), pointer)
 		}
 	}
 	
@@ -93,7 +97,7 @@ class ObjectiveCProxy extends GroovyObjectSupport {
 			return new TypeUtil().cToJ(ret, methodSignature.returnType)
 		}
 		
-		// Need to check this ! We are wrapping all structs in ObjectiveCProxy 
+		// Need to check this ! Wrapping all structs in ObjectiveCProxy 
 		ret = ObjectiveC.RUNTIME.objc_msgSend(pointer, methodSignature.selector, args)
 		return new TypeUtil.NSObjectMapper().cToJ(ret, methodSignature.returnType)
 	}
