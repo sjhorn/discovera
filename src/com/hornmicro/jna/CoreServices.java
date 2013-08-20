@@ -123,4 +123,9 @@ public interface CoreServices extends Library {
     
     public static final int kFSEventStreamEventIdSinceNow = -1;
     
+    public static final int kAnyTransactionID = 0;
+    public static final int kAEWaitReply = 3;
+    public static final int kAutoGenerateReturnID = -1;
+    public static final int kAEDefaultTimeout = -1;
+    
 }

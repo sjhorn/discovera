@@ -107,11 +107,11 @@ class TypeUtil {
 	static registerType(String type, Class proxyClass, Pointer classPtr) {
 		Object instance = msgSend(msgSend(classPtr, "alloc"), "init")
 		String instanceType = clsNameObj(instance)
-		//msgSend(instance, "dealloc")
-		println "Adding $type and $instanceType to typeRegistry"
+		println "Adding $type to typeRegistry"
 		synchronized(typeRegistry) {
 			typeRegistry[type] = proxyClass
 			if(instanceType != type && instanceType != "nil") {
+				println "Adding $instanceType to typeRegistry"
 				typeRegistry[instanceType] = proxyClass
 			}
 		}

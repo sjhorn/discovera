@@ -114,5 +114,11 @@ public interface ObjectiveC extends Library {
     	public static String nsStringToString(Pointer nsStringPtr) {
     		return msgSend(nsStringPtr, "UTF8String").getString(0);
     	}
+    	static int stringToDescType(String id) {
+    		return  ((id.charAt(0)) << 24) + ((id.charAt(1)) <<16) + 
+    			((id.charAt(2)) <<8) + (id.charAt(3));
+    	}
+    	static int noErr = 0;
+    	static int kNilOptions = 0;
     }
 }

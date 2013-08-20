@@ -12,7 +12,7 @@ import com.sun.jna.Structure;
 public interface ApplicationServices extends Library {
 	ApplicationServices INSTANCE = (ApplicationServices) Native.loadLibrary("ApplicationServices", ApplicationServices.class);
 	
-	int AESendMessage(AppleEvent event, AppleEvent reply, int sendMode, NativeLong timeOutInTicks);
+	int AESendMessage(AppleEvent event, AppleEvent reply, int sendMode, int timeOutInTicks);
 	int AEGetParamDesc(AppleEvent event, int theAEKeyword, int desiredType, AEDesc result);
 	
 	public class AppleEvent extends AEDesc {

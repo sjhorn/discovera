@@ -68,6 +68,10 @@ class ObjectiveCProxy extends GroovyObjectSupport {
 	
 	@Override
 	public String toString() {
+		String className = clsNameObj(pointer)
+		if ( className in ["NSString", "__NSCFString", "__NSCFConstantString"] ){
+			return nsStringToString(pointer)
+		}
 		return "ObjectiveCProxy for ${pointer.peer.toString()}"
 	}
 	

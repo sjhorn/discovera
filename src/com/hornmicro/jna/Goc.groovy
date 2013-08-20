@@ -1,24 +1,16 @@
 package com.hornmicro.jna
 
 import static com.hornmicro.jna.ObjectiveC.Utils.*
-import com.hornmicro.jna.NSAutoreleasePool
 
-import com.hornmicro.jna.ApplicationServices.AppleEvent
 import com.hornmicro.jna.ApplicationServices.AEDesc
-import com.sun.jna.Library
-import com.sun.jna.Native
-import com.sun.jna.NativeLong
+import com.hornmicro.jna.ApplicationServices.AppleEvent
+import com.hornmicro.jna.MacTypes.ProcessSerialNumber;
 import com.sun.jna.Pointer
 import com.sun.jna.Structure
 
 class Goc {
 	
-	static int stringToDescType(String id) {
-		return  ((id.charAt(0) as int) << 24) + ((id.charAt(1) as int ) <<16) + 
-			((id.charAt(2) as int) <<8) + (id.charAt(3) as int)
-	}
 	static main(args) {
-		
 //		NSMutableArray nsma = new NSMutableArray().array()
 //		nsma.invoke(addObject: nsStringPtr("one"))
 //		nsma.invoke(addObject: nsStringPtr("two"))
@@ -26,19 +18,12 @@ class Goc {
 //		println nsma.count()
 //		println nsma.lastObject()
 //		println nsma.invoke(objectAtIndex: 1)
-		 
-		//Native.loadLibrary("ScriptingBridge", Library.class)
-		
-		//Pointer pool = msgSend(msgSend(cls("NSAutoreleasePool"), "alloc"), "init")
         
 		NSAutoreleasePool pool = new NSAutoreleasePool().alloc().init()
-		
 		
 		List<File> files = [new File("/tmp/one.txt"), new File("/tmp/two.txt")]
 		
 		NSAppleEventDescriptor urlListDescr = new NSAppleEventDescriptor().listDescriptor()
-		
-		//Pointer NSAppleEventDescriptorClass = cls("NSAppleEventDescriptor")
 		
 		files.eachWithIndex { File file, int idx ->
 			NSURL nsURL = new NSURL().invoke(fileURLWithPath: nsStringPtr(file.absolutePath))
@@ -48,7 +33,6 @@ class Goc {
 			)
             urlListDescr.invoke(insertDescriptor:descr, atIndex: idx+1)
 		}
-		
 		
 		ProcessSerialNumber psn = getFinderPSN()
 		NSAppleEventDescriptor targetDesc = new NSAppleEventDescriptor().invoke(
@@ -60,8 +44,8 @@ class Goc {
 			appleEventWithEventClass: stringToDescType("core"),
 			eventID: stringToDescType("delo"),
 			targetDescriptor: targetDesc,
-			returnID: -1, 		// kAutoGenerateReturnID
-			transactionID: 0 	// kAnyTransactionID
+			returnID: CoreServices.kAutoGenerateReturnID,
+			transactionID: CoreServices.kAnyTransactionID
 		)
 		
 		descriptor.invoke(
@@ -74,11 +58,11 @@ class Goc {
 		int replyErr = ApplicationServices.INSTANCE.AESendMessage(
 			event,
 			replyEvent,
-			3, // kAEWaitReply
-			new NativeLong(-1) // kAEDefaultTimeout
+			CoreServices.kAEWaitReply,
+			CoreServices.kAEDefaultTimeout
 		)
 		
-		if(replyErr != 0  ) { // noErr 
+		if(replyErr != noErr  ) { // noErr 
 			println "error 1 (sending apple event)"
 			return
 		}
@@ -87,7 +71,7 @@ class Goc {
 		replyErr = ApplicationServices.INSTANCE.AEGetParamDesc(
 			replyEvent, stringToDescType("----"), stringToDescType("****"), replyAEDesc);
 		
-		if (replyErr != 0) {
+		if (replyErr != noErr) {
 			println "error 2 [${replyErr}](getting apple event result/event not actioned)"
 			return
 		}
@@ -106,35 +90,17 @@ class Goc {
 	static ProcessSerialNumber getFinderPSN() {
 		ProcessSerialNumber psn = new ProcessSerialNumber(0,0)
 		
-		Pointer appsEnumerator = msgSend(msgSend(msgSend(cls("NSWorkspace"), "sharedWorkspace"), "launchedApplications"), "objectEnumerator")
-		Pointer appInfoDict
-		while( (appInfoDict = msgSend(appsEnumerator, "nextObject")).peer ) {
-			Pointer NSApplicationBundleIdentifier = nsStringPtr("NSApplicationBundleIdentifier")
-			if( nsStringToString(msgSend(appInfoDict, "objectForKey:", NSApplicationBundleIdentifier)) == "com.apple.finder") {
-				psn.highLongOfPSN = msgSendInt(msgSend(appInfoDict, "objectForKey:", nsStringPtr("NSApplicationProcessSerialNumberHigh")), "longValue")
-				psn.lowLongOfPSN = msgSendInt(msgSend(appInfoDict, "objectForKey:", nsStringPtr("NSApplicationProcessSerialNumberLow")), "longValue")
+		ObjectiveCProxy appsEnumerator = new NSWorkspace().sharedWorkspace().launchedApplications().objectEnumerator()
+		ObjectiveCProxy appInfoDict
+		while( (appInfoDict = appsEnumerator.nextObject()) ) {
+			if( appInfoDict.invoke(objectForKey: nsStringPtr("NSApplicationBundleIdentifier")).toString() == "com.apple.finder") {
+				psn.highLongOfPSN = appInfoDict.invoke(objectForKey: nsStringPtr("NSApplicationProcessSerialNumberHigh")).longValue()
+				psn.lowLongOfPSN = appInfoDict.invoke(objectForKey: nsStringPtr("NSApplicationProcessSerialNumberLow")).longValue() 
 				break
 			}
 		}
 		return psn
 	}
 		
-	public static class ProcessSerialNumber extends Structure {
-		public int highLongOfPSN 
-		public int lowLongOfPSN
-		
-		public ProcessSerialNumber() {
-			super()
-		}
-		public ProcessSerialNumber(int highLongOfPSN, int lowLongOfPSN) {
-			super();
-			this.highLongOfPSN = highLongOfPSN;
-			this.lowLongOfPSN = lowLongOfPSN;
-		}
-
-		protected List getFieldOrder() {
-			return Arrays.asList(["highLongOfPSN", "lowLongOfPSN"] as String[])
-		}		 
-	}
 	
 }
